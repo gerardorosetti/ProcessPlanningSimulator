@@ -1,13 +1,23 @@
 #include "algorithms.hpp"
 
 Algorithm::Algorithm(std::shared_ptr<QueueInterface> adapter) noexcept
-    : process_queue{adapter}
+    : process_queue{adapter}, blocked_queue{std::make_shared<QueueAdapter>()}
 {}
 
 // non-expulsive algorithms
 ConcurrentQueue& Algorithm::get_process_queue()
 {
     return process_queue;
+}
+
+ConcurrentQueue& Algorithm::get_blocked_queue()
+{
+    return blocked_queue;
+}
+
+const Process& Algorithm::get_current_process()
+{
+    return current_process;
 }
 
 FirstComeFirstServed::FirstComeFirstServed()
@@ -17,16 +27,20 @@ void FirstComeFirstServed::process_algorithm(bool *going)
 {
     while(*going)
     {
-        std::this_thread::sleep_for(std::chrono::seconds{1});
-        Process current = process_queue.pop();
-        std::cout << current << std::endl;
-        // printf("Id: %ld - Status: %d", current.get_id(), current.get_status());
-        current.update_status(STATUS::IN_EXECUTION);
-        std::cout << current << std::endl;
-        // printf("Id: %ld - Status: %d", current.get_id(), current.get_status());
-        current.update_status(STATUS::COMPLETED);
-        std::cout << current << std::endl;
-        // printf("Id: %ld - Status: %d", current.get_id(), current.get_status());
+        //Process current_process = process_queue.pop();
+        //current_process_process = current_process;
+        current_process = process_queue.pop();
+        //std::cout << current_process << std::endl;
+
+        // printf("Id: %ld - Status: %d", current_process.get_id(), current_process.get_status());
+        current_process.update_status(STATUS::IN_EXECUTION);
+        //std::cout << current_process << std::endl;
+
+        std::this_thread::sleep_for(std::chrono::milliseconds{current_process.get_time()});
+        // printf("Id: %ld - Status: %d", current_process.get_id(), current_process.get_status());
+        current_process.update_status(STATUS::COMPLETED);
+        //std::cout << current_process << std::endl;
+        // printf("Id: %ld - Status: %d", current_process.get_id(), current_process.get_status());
     }
 }
 
@@ -45,12 +59,13 @@ void ShortestJobFirst::process_algorithm(bool *going)
 {
     while(*going)
     {
-        Process current = process_queue.pop();
-        std::cout << current << std::endl;
-        current.update_status(STATUS::IN_EXECUTION);
-        std::cout << current << std::endl;
-        current.update_status(STATUS::COMPLETED);
-        std::cout << current << std::endl;
+        current_process = process_queue.pop();
+        //std::cout << current_process << std::endl;
+        current_process.update_status(STATUS::IN_EXECUTION);
+        std::this_thread::sleep_for(std::chrono::milliseconds{current_process.get_time()});
+        //std::cout << current_process << std::endl;
+        current_process.update_status(STATUS::COMPLETED);
+        //std::cout << current_process << std::endl;
     }
 }
 
@@ -60,15 +75,16 @@ RandomSelection::RandomSelection()
 
 void RandomSelection::process_algorithm(bool *going)
 {
+    //std::cout << "ENTRE MGGVASEAAAAAAAA" << std::endl;
     while(*going)
     {
-        Process current = process_queue.pop();
-        std::cout << current << std::endl;
-        current.update_status(STATUS::IN_EXECUTION);
-        std::cout << current << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        current.update_status(STATUS::COMPLETED);
-        std::cout << current << std::endl;
+        current_process = process_queue.pop();
+        std::cout << current_process << std::endl;
+        current_process.update_status(STATUS::IN_EXECUTION);
+        std::cout << current_process << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(current_process.get_time()));
+        current_process.update_status(STATUS::COMPLETED);
+        std::cout << current_process << std::endl;
     }
 }
 
@@ -86,14 +102,14 @@ void PrioritySelectionNonExpulsive::process_algorithm(bool *going)
 {
     while(*going)
     {
-        Process current = process_queue.pop();
-        current.update_status(STATUS::READY);
-        std::cout << current << std::endl;
-        current.update_status(STATUS::IN_EXECUTION);
-        std::cout << current << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(current.get_time()));
-        current.update_status(STATUS::COMPLETED);
-        std::cout << current << std::endl;
+        current_process = process_queue.pop();
+        //current_process.update_status(STATUS::READY);
+        //std::cout << current_process << std::endl;
+        current_process.update_status(STATUS::IN_EXECUTION);
+        //std::cout << current_process << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(current_process.get_time()));
+        current_process.update_status(STATUS::COMPLETED);
+        //std::cout << current_process << std::endl;
     }
 }
 
@@ -106,23 +122,25 @@ void PrioritySelectionExpulsive::process_algorithm(bool *going)
 {
     while(*going)
     {
-        Process current = process_queue.pop();
-        current.update_status(STATUS::READY);
-        std::cout << current << std::endl;
-        current.update_status(STATUS::IN_EXECUTION);
-        std::cout << current << std::endl;
+        current_process = process_queue.pop();
+        //current_process.update_status(STATUS::READY);
+        //std::cout << current_process << std::endl;
+        current_process.update_status(STATUS::IN_EXECUTION);
+        //std::cout << current_process << std::endl;
         Process next = process_queue.top();
 
-        if(current.get_priority() > next.get_priority())
+        if(current_process.get_priority() > next.get_priority())
         {
-            current.update_status(STATUS::BLOCKED);
-            std::cout << current << std::endl;
-            process_queue.push(current);
-        } else
+            current_process.update_status(STATUS::BLOCKED);
+            //std::cout << current_process << std::endl;
+            //process_queue.push(current_process);
+            blocked_queue.push(current_process);
+        }
+        else
         {
-            std::this_thread::sleep_for(std::chrono::seconds(current.get_time()));
-            current.update_status(STATUS::COMPLETED);
-            std::cout << current << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(current_process.get_time()));
+            current_process.update_status(STATUS::COMPLETED);
+            //std::cout << current_process << std::endl;
         }
     }
 }
@@ -132,26 +150,26 @@ RoundRobin::RoundRobin()
 
 void RoundRobin::process_algorithm(bool *going)
 {
-    size_t quantum = 2;
+    size_t quantum = 2000;
     while(*going)
     {
-        Process current = process_queue.pop();
-        current.update_status(STATUS::READY);
-        std::cout << current << std::endl;
-        current.update_status(STATUS::IN_EXECUTION);
-        std::cout << current << std::endl;
-        if(current.get_time() > quantum)
+        current_process = process_queue.pop();
+        //current_process.update_status(STATUS::READY);
+        //std::cout << current_process << std::endl;
+        current_process.update_status(STATUS::IN_EXECUTION);
+        //std::cout << current_process << std::endl;
+        if(current_process.get_time() > quantum)
         {
-            std::this_thread::sleep_for(std::chrono::seconds(quantum));
-            current.update_status(STATUS::BLOCKED);
-            std::cout << current << std::endl;
-            current.update_time(current.get_time() - quantum);
-            process_queue.push(current);
+            std::this_thread::sleep_for(std::chrono::milliseconds(quantum));
+            current_process.update_status(STATUS::BLOCKED);
+            //std::cout << current_process << std::endl;
+            current_process.update_time(current_process.get_time() - quantum);
+            blocked_queue.push(current_process);
         }else
         {
-            std::this_thread::sleep_for(std::chrono::seconds(current.get_time()));
-            current.update_status(STATUS::COMPLETED);
-            std::cout << current << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(current_process.get_time()));
+            current_process.update_status(STATUS::COMPLETED);
+            //std::cout << current_process << std::endl;
         }
     }
 }
@@ -169,35 +187,35 @@ ShortestRemainingTimeFirst::ShortestRemainingTimeFirst()
 
 void ShortestRemainingTimeFirst::process_algorithm(bool *going)
 {
-    size_t quantum = 1;
+    size_t quantum = 1000;
     bool flag = 0;
     while(*going)
     {
         flag = 0;
-        Process current = process_queue.pop();
-        current.update_status(STATUS::READY);
-        std::cout << current << std::endl;
-        current.update_status(STATUS::IN_EXECUTION);
-        std::cout << current << std::endl;
+        current_process = process_queue.pop();
+        //current_process.update_status(STATUS::READY);
+        //std::cout << current_process << std::endl;
+        current_process.update_status(STATUS::IN_EXECUTION);
+        //std::cout << current_process << std::endl;
 
         Process next;
-        while( current.get_time() > 0 )
+        while( current_process.get_time() > 0 )
         {
-            std::this_thread::sleep_for(std::chrono::seconds(quantum));
-            current.update_time( current.get_time() - quantum);
+            std::this_thread::sleep_for(std::chrono::milliseconds(quantum));
+            current_process.update_time( current_process.get_time() - quantum);
             next = process_queue.top();
-            if(next.get_time() < current.get_time())
+            if(next.get_time() < current_process.get_time())
             {
-                current.update_status(STATUS::BLOCKED);
-                std::cout << current << std::endl;
-                process_queue.push(current);
+                current_process.update_status(STATUS::BLOCKED);
+                //std::cout << current_process << std::endl;
+                blocked_queue.push(current_process);
                 flag = 1;
                 break;
             }
         }
         if (flag) continue;
-        std::this_thread::sleep_for(std::chrono::seconds(current.get_time()));
-        current.update_status(STATUS::COMPLETED);
-        std::cout << current << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(current_process.get_time()));
+        current_process.update_status(STATUS::COMPLETED);
+        //std::cout << current_process << std::endl;
     }
 }

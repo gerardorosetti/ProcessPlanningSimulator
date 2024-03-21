@@ -79,6 +79,7 @@ void MainWidget::on_RS_pressed()
     menu_widget = nullptr;
     simulation_widget = new SimulationWidget{AlgorithmType::RS,this};
     layout.addWidget(simulation_widget);
+    connect(simulation_widget,SIGNAL(button_close_pressed()),this,SLOT(on_button_close_pressed()));
 }
 
 void MainWidget::on_PNE_pressed()
@@ -89,6 +90,7 @@ void MainWidget::on_PNE_pressed()
     menu_widget = nullptr;
     simulation_widget = new SimulationWidget{AlgorithmType::PNE,this};
     layout.addWidget(simulation_widget);
+    connect(simulation_widget,SIGNAL(button_close_pressed()),this,SLOT(on_button_close_pressed()));
 }
 
 void MainWidget::on_SJF_pressed()
@@ -99,6 +101,7 @@ void MainWidget::on_SJF_pressed()
     menu_widget = nullptr;
     simulation_widget = new SimulationWidget{AlgorithmType::SJF,this};
     layout.addWidget(simulation_widget);
+    connect(simulation_widget,SIGNAL(button_close_pressed()),this,SLOT(on_button_close_pressed()));
 }
 
 void MainWidget::on_RR_pressed()
@@ -109,6 +112,7 @@ void MainWidget::on_RR_pressed()
     menu_widget = nullptr;
     simulation_widget = new SimulationWidget{AlgorithmType::RR,this};
     layout.addWidget(simulation_widget);
+    connect(simulation_widget,SIGNAL(button_close_pressed()),this,SLOT(on_button_close_pressed()));
 }
 
 void MainWidget::on_SRTF_pressed()
@@ -119,6 +123,7 @@ void MainWidget::on_SRTF_pressed()
     menu_widget = nullptr;
     simulation_widget = new SimulationWidget{AlgorithmType::SRTF,this};
     layout.addWidget(simulation_widget);
+    connect(simulation_widget,SIGNAL(button_close_pressed()),this,SLOT(on_button_close_pressed()));
 }
 
 void MainWidget::on_PE_pressed()
@@ -129,4 +134,5 @@ void MainWidget::on_PE_pressed()
     menu_widget = nullptr;
     simulation_widget = new SimulationWidget{AlgorithmType::PE,this};
     layout.addWidget(simulation_widget);
+    connect(simulation_widget,SIGNAL(button_close_pressed()),this,SLOT(on_button_close_pressed()));
 }

@@ -26,15 +26,15 @@ MenuWidget::MenuWidget(QWidget *parent)
     FCFS.setFixedSize(width, height);
 
     layout.addWidget(&RS, 0, Qt::AlignCenter);
-    RS.setText("Shortest Job First");
+    RS.setText("Random Selection");
     RS.setFixedSize(width, height);
 
     layout.addWidget(&PNE, 0, Qt::AlignCenter);
-    PNE.setText("Random Selection");
+    PNE.setText("Planning Based on Priorities (Not Expulsive)");
     PNE.setFixedSize(width, height);
 
     layout.addWidget(&SJF, 0, Qt::AlignCenter);
-    SJF.setText("Planning Based on Priorities (Not Expulsive)");
+    SJF.setText("Shortest Job First");
     SJF.setFixedSize(width, height);
 
     QLabel *label_3 = new QLabel("Expulsive");

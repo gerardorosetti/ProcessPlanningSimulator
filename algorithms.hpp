@@ -26,8 +26,12 @@ public:
     Algorithm(std::shared_ptr<QueueInterface>) noexcept;
     virtual void process_algorithm(bool *going) = 0;
     ConcurrentQueue& get_process_queue();
+    ConcurrentQueue& get_blocked_queue();
+    const Process& get_current_process();
 protected:
+    Process current_process;
     ConcurrentQueue process_queue;
+    ConcurrentQueue blocked_queue;
 };
 
 class FirstComeFirstServed: public Algorithm
@@ -35,9 +39,6 @@ class FirstComeFirstServed: public Algorithm
 public:
     FirstComeFirstServed();
     void process_algorithm(bool *going) override;
-    //ConcurrentQueue& get_process_queue();
-
-private:
 };
 
 class ShortestJobFirst: public Algorithm
