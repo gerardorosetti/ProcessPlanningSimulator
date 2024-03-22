@@ -17,6 +17,7 @@ public:
     explicit SimulationWidget(AlgorithmType, QWidget *parent = nullptr);
     void create_threads();
     ~SimulationWidget();
+
 private:
     QVBoxLayout layout;
     QHBoxLayout processes_layout;
@@ -33,11 +34,13 @@ private:
     std::thread blocked_thread;
     bool going;
     bool simulation_closed{false};
+    bool has_blocked_list;
 
-    //ConcurrentQueue& process_queue;
-    //ConcurrentQueue& blocked_queue;
+    void sleep_for(ulong);
+
 private slots:
     void on_button_close_pressed();
+
 signals:
     void button_close_pressed();
 };

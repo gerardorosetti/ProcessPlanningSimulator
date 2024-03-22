@@ -1,47 +1,51 @@
 #include "simulationwidget.hpp"
 
 SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
-    : QWidget{parent}, going{true}/*, process_queue{nullptr}, blocked_queue{nullptr}*/
+    : QWidget{parent}, going{true}
 {
 
     switch (type)
     {
         case AlgorithmType::FCFS:
-        std::cout << "FCFS" << std::endl;
+            std::cout << "FCFS" << std::endl;
             algorithm = std::make_shared<FirstComeFirstServed>();
+            has_blocked_list = false;
             break;
         case AlgorithmType::RS:
             std::cout << "RS" << std::endl;
             algorithm = std::make_shared<RandomSelection>();
+            has_blocked_list = false;
             break;
         case AlgorithmType::SJF:
             std::cout << "SJF" << std::endl;
             algorithm = std::make_shared<ShortestJobFirst>();
+            has_blocked_list = false;
             break;
         case AlgorithmType::PNE:
             std::cout << "PNE" << std::endl;
             algorithm = std::make_shared<PrioritySelectionNonExpulsive>();
+            has_blocked_list = false;
             break;
         case AlgorithmType::RR:
             std::cout << "RR" << std::endl;
             algorithm = std::make_shared<RoundRobin>();
+            has_blocked_list = true;
             break;
         case AlgorithmType::SRTF:
             std::cout << "SRTF" << std::endl;
             algorithm = std::make_shared<ShortestRemainingTimeFirst>();
+            has_blocked_list = true;
             break;
         case AlgorithmType::PE:
             std::cout << "PE" << std::endl;
             algorithm = std::make_shared<PrioritySelectionExpulsive>();
+            has_blocked_list = true;
             break;
         default:
             std::cout << "DEFAULT" << std::endl;
             break;
     }
 
-    //process_queue = algorithm->get_process_queue();
-    //blocked_queue = algorithm->get_blocked_queue();
-    //algorithm = std::make_shared<RandomSelection>();
     this->setLayout(&layout);
 
     processes_list.setFixedSize(120, 300);
@@ -50,8 +54,11 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
     processes_layout.addWidget(&current_list, 0, Qt::AlignTop);
     compleated_list.setFixedSize(120, 300);
     processes_layout.addWidget(&compleated_list, 0, Qt::AlignCenter);
-    blocked_list.setFixedSize(120, 300);
-    processes_layout.addWidget(&blocked_list, 0, Qt::AlignCenter);
+    if (has_blocked_list)
+    {
+        blocked_list.setFixedSize(120, 300);
+        processes_layout.addWidget(&blocked_list, 0, Qt::AlignCenter);
+    }
 
     layout.addLayout(&processes_layout);
 
@@ -62,7 +69,23 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
     connect(&button_close, SIGNAL(clicked(bool)), this, SLOT(on_button_close_pressed()));
 
     create_threads();
-    //layout.addWidget(process);
+}
+
+void SimulationWidget::sleep_for(ulong time)
+{
+    auto tp1 = std::chrono::high_resolution_clock::now();
+    uint64_t time_counter = 0;
+    while(going)
+    {
+        auto tp2 = std::chrono::high_resolution_clock::now();
+        time_counter += std::chrono::duration_cast<std::chrono::milliseconds>(tp2 - tp1).count();
+        if(time_counter >= time)
+        {
+            break;
+        }
+        tp1 = tp2;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
 }
 
 void SimulationWidget::create_threads()
@@ -77,7 +100,6 @@ void SimulationWidget::create_threads()
     auto process_creation = [this, &processes_queue] ()  {
         std::random_device rd;
         std::mt19937 gen(rd());
-        //auto& processes_queue = algorithm->get_process_queue();
         while(going)
         {
             Process random_process = Process::build_random_process(gen);
@@ -85,7 +107,8 @@ void SimulationWidget::create_threads()
             ss << "Process ID: " << random_process.get_id();
             processes_list.addItem(QString::fromStdString(ss.str()));
             processes_queue.push(random_process);
-            std::this_thread::sleep_for(std::chrono::milliseconds{1000});
+            //std::this_thread::sleep_for(std::chrono::milliseconds{1200});
+            sleep_for(1200);
         }
         Process::counter = 0;
     };
@@ -101,15 +124,11 @@ void SimulationWidget::create_threads()
             QString QStr = QString::fromStdString(ss.str());
             if (current.get_status() == STATUS::IN_EXECUTION && !waiting)
             {
-                //std::stringstream ss;
-                //ss << "Process ID: " << current.get_id();
-                //QString QStr = QString::fromStdString(ss.str());
                 waiting = true;
                 for (int i = 0; i < processes_list.count(); ++i)
                 {
                     const auto& item = processes_list.takeItem(i);
                     QString str1 = item->text();
-                    //if(QString::compare(str1, QStr, Qt::CaseSensitive))
                     if(str1 == QStr)
                     {
                         processes_list.removeItemWidget(item);
@@ -121,71 +140,57 @@ void SimulationWidget::create_threads()
             }
             if (current.get_status() == STATUS::COMPLETED && waiting)
             {
-                //std::stringstream ss;
-                //ss << "Process ID: " << current.get_id();
                 waiting = false;
                 current_list.removeItemWidget(current_list.takeItem(0));
                 compleated_list.addItem(QStr);
             }
-            if(current.get_status() == STATUS::BLOCKED && waiting)
+            if(current.get_status() == STATUS::BLOCKED && waiting && has_blocked_list)
             {
                 waiting = false;
                 current_list.removeItemWidget(current_list.takeItem(0));
                 blocked_list.addItem(QStr);
             }
-            /*if(current.get_status() == STATUS::READY)
-            {
-
-            }*/
+            //std::this_thread::sleep_for(std::chrono::milliseconds{1});
         }
     };
     modify_lists = std::thread(mod);
-
-    auto blocked = [this, &processes_queue, &blocked_queue] ()
+    if (has_blocked_list)
     {
-        //ConcurrentQueue& blocked_queue = algorithm->get_blocked_queue();
-        //ConcurrentQueue& process_queue = algorithm->get_process_queue();
-        while(going)
+        auto blocked = [this, &processes_queue, &blocked_queue] ()
         {
-            Process curr = blocked_queue.pop();
-            std::this_thread::sleep_for(std::chrono::milliseconds{2000});
-            /*
-            if (curr.get_status() == STATUS::BLOCKED)
+            while(going/* || !blocked_queue.empty()*/ /*|| blocked_queue.size() > 0*/)
             {
-                curr.update_status(STATUS::READY);
-                processes_queue.push(curr);
-                std::cout << "cualquier cosa\n";
-                blocked_list.removeItemWidget(blocked_list.takeItem(0));
-                std::stringstream ss;
-                ss << "Process ID: " << curr.get_id();
-                processes_list.addItem(QString::fromStdString(ss.str()));
+                if(!blocked_queue.empty())
+                {
+                    Process curr = blocked_queue.pop();
+                    sleep_for(1500);
+                    blocked_list.removeItemWidget(blocked_list.takeItem(0));
+                    std::stringstream ss;
+                    ss << "Process ID: " << curr.get_id();
+                    processes_list.addItem(QString::fromStdString(ss.str()));
+                    curr.update_status(STATUS::READY);
+                    processes_queue.push(curr);
+                }
+                //std::this_thread::sleep_for(std::chrono::milliseconds{1});
             }
-            */
+        };
 
-            blocked_list.removeItemWidget(blocked_list.takeItem(0));
-            std::stringstream ss;
-            ss << "Process ID: " << curr.get_id();
-            processes_list.addItem(QString::fromStdString(ss.str()));
-            curr.update_status(STATUS::READY);
-            processes_queue.push(curr);
-        }
-    };
-    blocked_thread = std::thread(blocked);
+        blocked_thread = std::thread(blocked);
+    }
 }
 
 void SimulationWidget::on_button_close_pressed()
 {
     going = false;
     simulation_closed = true;
-    //std::cout << "\ntest3\n";
+    if (has_blocked_list)
+    {
+        blocked_thread.join();
+    }
     processes_creator.join();
-    //processes_creator.detach();
-    //std::cout << "\ntest2\n";
     processes.join();
-    blocked_thread.join();
     modify_lists.join();
-    //processes.detach();
-    //std::cout << "\ntest1\n";
+
     emit button_close_pressed();
 }
 
@@ -197,6 +202,9 @@ SimulationWidget::~SimulationWidget()
         processes_creator.join();
         processes.join();
         modify_lists.join();
-        blocked_thread.join();
+        if (has_blocked_list)
+        {
+            blocked_thread.join();
+        }
     }
 }

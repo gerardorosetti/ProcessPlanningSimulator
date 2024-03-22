@@ -22,7 +22,7 @@ MenuWidget::MenuWidget(QWidget *parent)
     layout.addWidget(label_2, 0, Qt::AlignCenter);
 
     layout.addWidget(&FCFS, 0, Qt::AlignCenter);
-    FCFS.setText("First Come First Run");
+    FCFS.setText("First Come First Served");
     FCFS.setFixedSize(width, height);
 
     layout.addWidget(&RS, 0, Qt::AlignCenter);
