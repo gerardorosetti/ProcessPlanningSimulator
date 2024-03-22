@@ -90,33 +90,43 @@ void SimulationWidget::sleep_for(ulong time)
 
 void SimulationWidget::create_threads()
 {
-    ConcurrentQueue& processes_queue = algorithm->get_process_queue();
-    ConcurrentQueue& blocked_queue = algorithm->get_blocked_queue();
 
     auto pred = [this] () {
+
         algorithm->process_algorithm(&going);
     };
     processes = std::thread{pred};
+
+    sleep_for(150);
+
+    ConcurrentQueue& processes_queue = algorithm->get_process_queue();
+    ConcurrentQueue& blocked_queue = algorithm->get_blocked_queue();
+
     auto process_creation = [this, &processes_queue] ()  {
         std::random_device rd;
         std::mt19937 gen(rd());
+        sleep_for(250);
+        Process random_process = Process::build_random_process(gen);
+        sleep_for(250);
         while(going)
         {
-            Process random_process = Process::build_random_process(gen);
+            //Process random_process = Process::build_random_process(gen);
             std::stringstream ss;
             ss << "Process ID: " << random_process.get_id();
             processes_list.addItem(QString::fromStdString(ss.str()));
             processes_queue.push(random_process);
             //std::this_thread::sleep_for(std::chrono::milliseconds{1200});
             sleep_for(1200);
+            random_process = Process::build_random_process(gen);
         }
-        Process::counter = 0;
+        Process::counter = 1;
     };
     processes_creator = std::thread(process_creation);
     auto mod = [this] ()
     {
         const Process& current = algorithm->get_current_process();
         bool waiting = false;
+        sleep_for(500);
         while (going)
         {
             std::stringstream ss;
@@ -158,6 +168,7 @@ void SimulationWidget::create_threads()
     {
         auto blocked = [this, &processes_queue, &blocked_queue] ()
         {
+            sleep_for(500);
             while(going/* || !blocked_queue.empty()*/ /*|| blocked_queue.size() > 0*/)
             {
                 if(!blocked_queue.empty())

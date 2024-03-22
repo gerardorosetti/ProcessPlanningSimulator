@@ -1,6 +1,6 @@
 #include "process.hpp"
 
-long Process::counter = 0;
+long Process::counter = 1;
 
 Process Process::build_random_process(std::mt19937& gen) noexcept
 {
@@ -16,7 +16,7 @@ Process Process::build_random_process(std::mt19937& gen) noexcept
 
 
 Process::Process(size_t _time, size_t _priority) noexcept
-    : id{++counter}, time{_time}, priority{_priority}, status{STATUS::CREATED}, on_going_time{0},
+    : id{counter++}, time{_time}, priority{_priority}, status{STATUS::CREATED}, on_going_time{0},
     creation_time{std::chrono::system_clock::now().time_since_epoch().count()} {}
 
 long Process::get_id() const noexcept
