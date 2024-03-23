@@ -28,6 +28,7 @@ public:
     STATUS get_status() const noexcept;
     void update_status(STATUS _status) noexcept;
     void update_wait_time(int64_t t) noexcept;
+    void update_creation_time(int64_t t) noexcept;
     void update_time(int64_t t) noexcept;
     int64_t get_wait_time() const noexcept;
     static Process build_random_process(std::mt19937& generator) noexcept;

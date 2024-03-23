@@ -54,7 +54,12 @@ int64_t Process::get_wait_time() const noexcept
 
 void Process::update_wait_time(int64_t t) noexcept
 {
-    wait_time = t;
+    wait_time = creation_time - t;
+}
+
+void Process::update_creation_time(int64_t t) noexcept
+{
+    creation_time = t;
 }
 
 void Process::update_time(int64_t t) noexcept

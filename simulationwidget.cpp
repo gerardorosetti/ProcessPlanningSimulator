@@ -51,25 +51,204 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
     this->setLayout(&layout);
 
     processes_list.setFixedSize(200, 300);
+    processes_list.setStyleSheet(
+        "QListWidget {"
+                "background-color: #ABB4B4;"
+                "border: 2px solid #1a1a1a;" 
+                "border-radius: 10px;" 
+                "padding: 10px;" 
+                "font-family: Arial;" 
+        "}"
+        "QListWidget::item {"
+                "color: rgba(0, 51, 102, 0.8);" 
+                "text-align: center;" 
+                "font-weight: bold;"
+        "}"
+        "QListWidget::item:selected {"
+                "background-color: #007bff;" 
+                "color: #fff;" 
+        "}"
+            "QScrollBar:vertical {"
+            "border: none;"
+            "background: #f0f0f0;"
+            "width: 10px;"
+            "margin: 0px 0px 0px 0px;"
+        "}"
+        "QScrollBar::handle:vertical {"
+            "background: #ccc;"
+            "min-height: 20px;"
+            "border-radius: 5px;"
+        "}"
+        "QScrollBar::handle:vertical:hover {"
+            "background: #999;"
+        "}"
+        "QScrollBar::sub-line:vertical {"
+            "background: none;"
+        "}"
+        "QScrollBar::add-line:vertical {"
+            "background: none;"
+        "}"
+        "QScrollBar::sub-page:vertical {"
+            "background: none;"
+        "}"
+        "QScrollBar::add-page:vertical {"
+            "background: none;"
+        "}"
+    );
+    //processes_list.itemAlignment()
     processes_layout.addWidget(&processes_list, 0, Qt::AlignCenter);
     current_list.setFixedSize(200, 50);
+    current_list.setStyleSheet(
+        "QListWidget {"
+            "background-color: #ABB4B4;" 
+            "border: 2px solid #556b2f;" 
+            "border-radius: 10px;" 
+            "padding: 10px;" 
+            "font-family: Arial;" 
+        "}"
+        "QListWidget::item {"
+            "color: rgba(85, 107, 47, 0.8);" 
+            "text-align: center;"
+            "font-weight: bold;"   
+        "}"
+        "QListWidget::item:selected {"
+            "background-color: #007bff;" 
+            "color: #fff;" 
+        "}"
+        "QScrollBar::handle:vertical {"
+            "background: #ccc;"
+            "min-height: 20px;"
+            "border-radius: 5px;"
+        "}"
+        "QScrollBar::handle:vertical:hover {"
+            "background: #999;"
+        "}"
+        "QScrollBar::sub-line:vertical {"
+            "background: none;"
+        "}"
+        "QScrollBar::add-line:vertical {"
+            "background: none;"
+        "}"
+        "QScrollBar::sub-page:vertical {"
+            "background: none;"
+        "}"
+        "QScrollBar::add-page:vertical {"
+            "background: none;"
+        "}"
+    );
     processes_layout.addWidget(&current_list, 0, Qt::AlignTop);
     compleated_list.setFixedSize(200, 300);
+    compleated_list.setStyleSheet(
+        "QListWidget {"
+            "background-color: #ABB4B4;"
+            "border: 2px solid #006400;"
+            "border-radius: 10px;" 
+            "padding: 10px;" 
+            "font-family: Arial;" 
+        "}"
+        "QListWidget::item {"
+            "color: rgba(0, 100, 0, 0.8);"
+            "text-align: center;"
+            "font-weight: bold;" 
+        "}"
+        "QListWidget::item:selected {"
+            "background-color: #007bff;" 
+            "color: #fff;" 
+        "}"
+        "QScrollBar:vertical {"
+            "border: none;"
+            "background: #f0f0f0;"
+            "width: 10px;"
+            "margin: 0px 0px 0px 0px;"
+        "}"
+        "QScrollBar::handle:vertical {"
+            "background: #ccc;"
+            "min-height: 20px;"
+            "border-radius: 5px;"
+        "}"
+        "QScrollBar::handle:vertical:hover {"
+            "background: #999;"
+        "}"
+        "QScrollBar::sub-line:vertical {"
+            "background: none;"
+        "}"
+        "QScrollBar::add-line:vertical {"
+            "background: none;"
+        "}"
+        "QScrollBar::sub-page:vertical {"
+            "background: none;"
+        "}"
+        "QScrollBar::add-page:vertical {"
+            "background: none;"
+        "}"
+    );
+
     processes_layout.addWidget(&compleated_list, 0, Qt::AlignCenter);
 
     if (has_blocked_list)
     {
         blocked_list.setFixedSize(200, 300);
+        blocked_list.setStyleSheet(
+        "QListWidget {"
+            "background-color: #ABB4B4;" 
+            "border: 2px solid #8b0000;" 
+            "border-radius: 10px;"
+            "padding: 10px;" 
+            "font-family: Arial;" 
+        "}"
+        "QListWidget::item {"
+            "color: rgba(139, 0, 0, 0.8);" 
+            "text-align: center;" 
+            "font-weight: bold;"
+        "}"
+        "QListWidget::item:selected {"
+            "background-color: #007bff;" 
+            "color: #fff;" 
+        "}"
+        "QScrollBar:vertical {"
+            "border: none;"
+            "background: #f0f0f0;"
+            "width: 10px;"
+            "margin: 0px 0px 0px 0px;"
+        "}"
+        "QScrollBar::handle:vertical {"
+            "background: #ccc;"
+            "min-height: 20px;"
+            "border-radius: 5px;"
+        "}"
+        "QScrollBar::handle:vertical:hover {"
+            "background: #999;"
+        "}"
+        "QScrollBar::sub-line:vertical {"
+            "background: none;"
+        "}"
+        "QScrollBar::add-line:vertical {"
+            "background: none;"
+        "}"
+        "QScrollBar::sub-page:vertical {"
+            "background: none;"
+        "}"
+        "QScrollBar::add-page:vertical {"
+            "background: none;"
+        "}"
+        );
         processes_layout.addWidget(&blocked_list, 0, Qt::AlignCenter);
     }
 
     layout.addLayout(&processes_layout);
 
+    button_stop.setFixedSize(250, 50);
+    button_stop.setText("Stop Simulation");
+    buttons_layout.addWidget(&button_stop, 0, Qt::AlignCenter);
+
     button_close.setFixedSize(250, 50);
     button_close.setText("Stop Simulation and Go to the Menu");
-    layout.addWidget(&button_close, 0, Qt::AlignCenter);
+    buttons_layout.addWidget(&button_close, 0, Qt::AlignCenter);
+
+    layout.addLayout(&buttons_layout);
 
     connect(&button_close, SIGNAL(clicked(bool)), this, SLOT(on_button_close_pressed()));
+    connect(&button_stop, SIGNAL(clicked(bool)), this, SLOT(on_button_stop_pressed()));
 
     create_threads();
 }
@@ -118,9 +297,15 @@ void SimulationWidget::create_threads()
             std::stringstream ss;
             ss << "Process ID: " << random_process.get_id();
             QString qstr = QString::fromStdString(ss.str());
-            processes_set.insert(qstr);
-            processes_list.addItem(qstr);
+            //processes_set.insert(qstr);
+            //Qt::AlignHCenter
+            QListWidgetItem* newItem = new QListWidgetItem(qstr);
+            newItem->setTextAlignment(Qt::AlignHCenter);
+            processes_list.addItem(newItem);
             processes_queue.push(random_process);
+
+            ++GlobalVariables::total_processes_created;
+
             double interval = exp_dist(gen);
             sleep_for(static_cast<ulong>(interval));
             random_process = Process::build_random_process(gen);
@@ -155,15 +340,22 @@ void SimulationWidget::create_threads()
                     }
                     //processes_list.insertItem(i, item);
                 }
-                current_list.addItem(QStr);
+                QListWidgetItem* newItem = new QListWidgetItem(QStr);
+                newItem->setTextAlignment(Qt::AlignHCenter);
+                current_list.addItem(newItem);
             }
 
 
             if (current.get_status() == STATUS::COMPLETED && waiting)
             {
+
+                ++GlobalVariables::total_processes_compleated;
+
                 waiting = false;
                 current_list.removeItemWidget(current_list.takeItem(0));
-                compleated_list.addItem(QStr);
+                QListWidgetItem* newItem = new QListWidgetItem(QStr);
+                newItem->setTextAlignment(Qt::AlignHCenter);
+                compleated_list.addItem(newItem);
                 //compleated_set.insert(QStr);
                 for (int var = 0; var < processes_list.count(); ++var)
                 {
@@ -182,7 +374,9 @@ void SimulationWidget::create_threads()
             {
                 waiting = false;
                 current_list.removeItemWidget(current_list.takeItem(0));
-                blocked_list.addItem(QStr);
+                QListWidgetItem* newItem = new QListWidgetItem(QStr);
+                newItem->setTextAlignment(Qt::AlignHCenter);
+                blocked_list.addItem(newItem);
             }
             //std::this_thread::sleep_for(std::chrono::milliseconds{1});
         }
@@ -203,12 +397,19 @@ void SimulationWidget::create_threads()
                 {
                     Process curr = blocked_queue.pop();
                     size_t random_time = time_dist(gen);
-                    sleep_for(random_time);
+                    //sleep_for(random_time);
+                    sleep_for(100000000);
+                    GlobalVariables::total_blocked_time += random_time;
+                    ++GlobalVariables::total_processes_blocked;
+
                     blocked_list.removeItemWidget(blocked_list.takeItem(0));
                     std::stringstream ss;
                     ss << "Process ID: " << curr.get_id();
-                    processes_list.addItem(QString::fromStdString(ss.str()));
+                    QListWidgetItem* newItem = new QListWidgetItem(QString::fromStdString(ss.str()));
+                    newItem->setTextAlignment(Qt::AlignHCenter);
+                    processes_list.addItem(newItem);
                     curr.update_status(STATUS::READY);
+                    curr.update_creation_time(std::chrono::system_clock::now().time_since_epoch().count());
                     processes_queue.push(curr);
                 }
                 //std::this_thread::sleep_for(std::chrono::milliseconds{1});
@@ -231,7 +432,24 @@ void SimulationWidget::on_button_close_pressed()
     processes.join();
     modify_lists.join();
 
+    GlobalVariables::reset();
+
     emit button_close_pressed();
+}
+
+void SimulationWidget::on_button_stop_pressed()
+{
+    GlobalVariables::going = false;
+    //simulation_closed = true;
+    //if (has_blocked_list)
+    //{
+    //    blocked_thread.join();
+    //}
+    //processes_creator.join();
+    //processes.join();
+    //modify_lists.join();
+
+    //emit button_stop_pressed();
 }
 
 SimulationWidget::~SimulationWidget()
@@ -247,4 +465,5 @@ SimulationWidget::~SimulationWidget()
             blocked_thread.join();
         }
     }
+    GlobalVariables::reset();
 }

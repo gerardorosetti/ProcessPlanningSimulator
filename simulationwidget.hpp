@@ -22,8 +22,10 @@ public:
 private:
     QVBoxLayout layout;
     QHBoxLayout processes_layout;
+    QHBoxLayout buttons_layout;
     QListWidget process;
     QPushButton button_close;
+    QPushButton button_stop;
     QListWidget processes_list;
     QListWidget current_list;
     QListWidget compleated_list;
@@ -40,16 +42,15 @@ private:
     bool simulation_closed{false};
     bool has_blocked_list;
 
-    std::unordered_set<QString> compleated_set;
-    std::unordered_set<QString> processes_set;
-
     void sleep_for(ulong);
 
 private slots:
     void on_button_close_pressed();
+    void on_button_stop_pressed();
 
 signals:
     void button_close_pressed();
+    void button_stop_pressed();
 };
 
 #endif // SIMULATIONWIDGET_HPP
