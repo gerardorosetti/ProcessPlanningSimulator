@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QLabel>
+#include <QLineEdit>
 
 class MenuWidget : public QWidget
 {
@@ -13,8 +14,6 @@ public:
     explicit MenuWidget(QWidget *parent = nullptr);
 public:
     QVBoxLayout layout;
-    /*QComboBox options;
-    QPushButton start_simulation_btn;*/
     QPushButton FCFS;
     QPushButton RS;
     QPushButton PNE;

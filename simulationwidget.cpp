@@ -3,7 +3,7 @@
 SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
     : QWidget{parent}, going{true}
 {
-
+    //Creation of Algorithm 
     switch (type)
     {
         case AlgorithmType::FCFS:
@@ -54,6 +54,7 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
     processes_layout.addWidget(&current_list, 0, Qt::AlignTop);
     compleated_list.setFixedSize(120, 300);
     processes_layout.addWidget(&compleated_list, 0, Qt::AlignCenter);
+    
     if (has_blocked_list)
     {
         blocked_list.setFixedSize(120, 300);
@@ -92,7 +93,6 @@ void SimulationWidget::create_threads()
 {
 
     auto pred = [this] () {
-
         algorithm->process_algorithm(&going);
     };
     processes = std::thread{pred};
@@ -101,23 +101,26 @@ void SimulationWidget::create_threads()
 
     ConcurrentQueue& processes_queue = algorithm->get_process_queue();
     ConcurrentQueue& blocked_queue = algorithm->get_blocked_queue();
-
-    auto process_creation = [this, &processes_queue] ()  {
+    double lambda = 2000;
+    auto process_creation = [this, &processes_queue, &lambda] ()  {
         std::random_device rd;
         std::mt19937 gen(rd());
-        sleep_for(250);
         Process::counter = 1;
+        std::exponential_distribution<double> exp_dist(1.0 / lambda);
+
+        //sleep_for(250);
         Process random_process = Process::build_random_process(gen);
-        sleep_for(250);
+        //sleep_for(250);
         while(going)
         {
-            //Process random_process = Process::build_random_process(gen);
             std::stringstream ss;
             ss << "Process ID: " << random_process.get_id();
-            processes_list.addItem(QString::fromStdString(ss.str()));
+            QString qstr = QString::fromStdString(ss.str());
+            processes_set.insert(qstr);
+            processes_list.addItem(qstr);
             processes_queue.push(random_process);
-            //std::this_thread::sleep_for(std::chrono::milliseconds{1200});
-            sleep_for(1200);
+            double interval = exp_dist(gen);
+            sleep_for(static_cast<ulong>(interval));
             random_process = Process::build_random_process(gen);
         }
         Process::counter = 1;
@@ -125,9 +128,11 @@ void SimulationWidget::create_threads()
     processes_creator = std::thread(process_creation);
     auto mod = [this] ()
     {
+        //std::unordered_set<QString> compleated_set;
+        //std::unordered_set<QString> processes_set;
         const Process& current = algorithm->get_current_process();
         bool waiting = false;
-        sleep_for(500);
+        //sleep_for(500);
         while (going)
         {
             std::stringstream ss;
@@ -155,6 +160,18 @@ void SimulationWidget::create_threads()
                 waiting = false;
                 current_list.removeItemWidget(current_list.takeItem(0));
                 compleated_list.addItem(QStr);
+                //compleated_set.insert(QStr);
+                for (int var = 0; var < processes_list.count(); ++var)
+                {
+                    const auto& item = processes_list.takeItem(var);
+                    QString str1 = item->text();
+                    if(str1 == QStr)
+                    {
+                        processes_list.removeItemWidget(item);
+                        break;
+                    }
+                    processes_list.insertItem(var, item);
+                }
             }
             if(current.get_status() == STATUS::BLOCKED && waiting && has_blocked_list)
             {

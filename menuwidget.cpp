@@ -4,21 +4,16 @@ MenuWidget::MenuWidget(QWidget *parent)
     : QWidget{parent}
 {
     this->setLayout(&layout);
-    /*options.addItem("First Come First Served");
-    options.addItem("Shortest Job First");*/
-
-    //layout.addWidget(&options);
-    //start_simulation_btn.setText("Start Simulation");
-    //layout.addWidget(&start_simulation_btn);
-
+    
+    //size of window
     int width = 300, height = 50;
 
     QLabel *label_1 = new QLabel("Process Planning Algorithms");
-    label_1->setStyleSheet("font-size: 30px; color: #333; font-weight: bold;");
+    label_1->setStyleSheet("font-size: 25px; color: #333; font-weight: bold;");
     layout.addWidget(label_1, 0, Qt::AlignCenter);
 
     QLabel *label_2 = new QLabel("Non-Expulsive");
-    label_2->setStyleSheet("font-size: 25px; color: #333; font-weight: bold;");
+    label_2->setStyleSheet("font-size: 20px; color: #333; font-weight: bold;");
     layout.addWidget(label_2, 0, Qt::AlignCenter);
 
     layout.addWidget(&FCFS, 0, Qt::AlignCenter);
@@ -38,7 +33,7 @@ MenuWidget::MenuWidget(QWidget *parent)
     SJF.setFixedSize(width, height);
 
     QLabel *label_3 = new QLabel("Expulsive");
-    label_3->setStyleSheet("font-size: 25px; color: #333; font-weight: bold;");
+    label_3->setStyleSheet("font-size: 20px; color: #333; font-weight: bold;");
     layout.addWidget(label_3, 0, Qt::AlignCenter);
 
     layout.addWidget(&RR, 0, Qt::AlignCenter);
@@ -53,6 +48,13 @@ MenuWidget::MenuWidget(QWidget *parent)
     PE.setText("Planning Based on Priorities (Expulsive)");
     PE.setFixedSize(width, height);
 
+    //QLabel *label_4 = new QLabel("Settings");
+    //label_3->setStyleSheet("font-size: 10px; color: #333; font-weight: bold;");
+    //layout.addWidget(label_3, 0, Qt::AlignCenter);
+
+    //QLineEdit *input_tick = new QLineEdit();
+    //layout.addItem(input_tick);
+
     connect(&FCFS, SIGNAL(clicked(bool)), this, SLOT(on_FCFS_pressed()));
     connect(&RS, SIGNAL(clicked(bool)), this, SLOT(on_RS_pressed()));
     connect(&PNE, SIGNAL(clicked(bool)), this, SLOT(on_PNE_pressed()));
@@ -60,7 +62,9 @@ MenuWidget::MenuWidget(QWidget *parent)
     connect(&RR, SIGNAL(clicked(bool)), this, SLOT(on_RR_pressed()));
     connect(&SRTF, SIGNAL(clicked(bool)), this, SLOT(on_SRTF_pressed()));
     connect(&PE, SIGNAL(clicked(bool)), this, SLOT(on_PE_pressed()));
+
 }
+
 void MenuWidget::on_FCFS_pressed()
 {
     emit FCFS_pressed();
