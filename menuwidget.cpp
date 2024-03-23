@@ -48,12 +48,28 @@ MenuWidget::MenuWidget(QWidget *parent)
     PE.setText("Planning Based on Priorities (Expulsive)");
     PE.setFixedSize(width, height);
 
-    //QLabel *label_4 = new QLabel("Settings");
-    //label_3->setStyleSheet("font-size: 10px; color: #333; font-weight: bold;");
-    //layout.addWidget(label_3, 0, Qt::AlignCenter);
+    QLabel *lambda = new QLabel("Tiempo de LLegadas: ");
+    lambda->setStyleSheet("font-size: 15px; color: #333; font-weight: bold;");
+    settings_layout.addWidget(lambda);
 
-    //QLineEdit *input_tick = new QLineEdit();
-    //layout.addItem(input_tick);
+    QSpinBox *input_lambda = new QSpinBox();
+    input_lambda->setRange(2000,10000);
+    settings_layout.addWidget(input_lambda);
+    input_lambda->setFixedSize(200,30);
+
+    QLabel *tick = new QLabel("Tick: ");
+    tick->setStyleSheet("font-size: 15px; color: #333; font-weight: bold;");
+    settings_layout.addWidget(tick);
+
+    QSpinBox *input_tick = new QSpinBox();
+    input_tick->setRange(1,10);
+    settings_layout.addWidget(input_tick);
+    input_tick->setFixedSize(200,30);
+
+    layout.addLayout(&settings_layout);
+
+    connect(input_lambda, QOverload<int>::of(&QSpinBox::valueChanged), this, &MenuWidget::update_lambda);
+    connect(input_tick, QOverload<int>::of(&QSpinBox::valueChanged), this, &MenuWidget::update_tick);
 
     connect(&FCFS, SIGNAL(clicked(bool)), this, SLOT(on_FCFS_pressed()));
     connect(&RS, SIGNAL(clicked(bool)), this, SLOT(on_RS_pressed()));
@@ -92,4 +108,12 @@ void MenuWidget::on_SRTF_pressed()
 void MenuWidget::on_PE_pressed()
 {
     emit PE_pressed();
+}
+void MenuWidget::update_lambda(int value)
+{
+    GlobalVariables::lambda = value;
+}
+void MenuWidget::update_tick(int value)
+{
+    GlobalVariables::tick = value;
 }

@@ -20,11 +20,11 @@ const Process& Algorithm::get_current_process()
     return current_process;
 }
 
-void sleep_for(ulong time, bool* going)
+void sleep_for(ulong time/*, bool* going*/)
 {
     auto tp1 = std::chrono::high_resolution_clock::now();
     uint64_t time_counter = 0;
-    while(*going)
+    while(GlobalVariables::going)
     {
         auto tp2 = std::chrono::high_resolution_clock::now();
         time_counter += std::chrono::duration_cast<std::chrono::milliseconds>(tp2 - tp1).count();
@@ -33,16 +33,16 @@ void sleep_for(ulong time, bool* going)
             break;
         }
         tp1 = tp2;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(GlobalVariables::tick));
     }
 }
 
 FirstComeFirstServed::FirstComeFirstServed()
     : Algorithm{std::make_shared<QueueAdapter>()}{}
 
-void FirstComeFirstServed::process_algorithm(bool *going)
+void FirstComeFirstServed::process_algorithm(/*bool GlobalVariables::going*/)
 {
-    while(*going)
+    while(GlobalVariables::going)
     {
         if(!process_queue.empty())
         {
@@ -56,7 +56,7 @@ void FirstComeFirstServed::process_algorithm(bool *going)
             //std::cout << current_process << std::endl;
 
             //std::this_thread::sleep_for(std::chrono::milliseconds{current_process.get_time()});
-            sleep_for(current_process.get_time(), going);
+            sleep_for(current_process.get_time()/*, going*/);
             // printf("Id: %ld - Status: %d", current_process.get_id(), current_process.get_status());
             current_process.update_status(STATUS::COMPLETED);
             //std::cout << current_process << std::endl;
@@ -76,9 +76,9 @@ struct SJF_CMP
 ShortestJobFirst::ShortestJobFirst()
     : Algorithm{std::make_shared<HeapAdapter<SJF_CMP>>()}{}
 
-void ShortestJobFirst::process_algorithm(bool *going)
+void ShortestJobFirst::process_algorithm(/*bool GlobalVariables::going*/)
 {
-    while(*going)
+    while(GlobalVariables::going)
     {
         if (!process_queue.empty())
         {
@@ -86,7 +86,7 @@ void ShortestJobFirst::process_algorithm(bool *going)
             //std::cout << current_process << std::endl;
             current_process.update_status(STATUS::IN_EXECUTION);
             //std::this_thread::sleep_for(std::chrono::milliseconds{current_process.get_time()});
-            sleep_for(current_process.get_time(), going);
+            sleep_for(current_process.get_time()/*, going*/);
             //std::cout << current_process << std::endl;
             current_process.update_status(STATUS::COMPLETED);
             //std::cout << current_process << std::endl;
@@ -98,9 +98,9 @@ void ShortestJobFirst::process_algorithm(bool *going)
 RandomSelection::RandomSelection()
     : Algorithm{std::make_shared<VectorAdapter>()}{}
 
-void RandomSelection::process_algorithm(bool *going)
+void RandomSelection::process_algorithm(/*bool GlobalVariables::going*/)
 {
-    while(*going)
+    while(GlobalVariables::going)
     {
         if(!process_queue.empty())
         {
@@ -109,7 +109,7 @@ void RandomSelection::process_algorithm(bool *going)
             current_process.update_status(STATUS::IN_EXECUTION);
             //std::cout << current_process << std::endl;
             //std::this_thread::sleep_for(std::chrono::milliseconds(current_process.get_time()));
-            sleep_for(current_process.get_time(), going);
+            sleep_for(current_process.get_time()/*, going*/);
             current_process.update_status(STATUS::COMPLETED);
             //std::cout << current_process << std::endl;
         }
@@ -126,9 +126,9 @@ struct PS_CMP
 PrioritySelectionNonExpulsive::PrioritySelectionNonExpulsive()
     : Algorithm{std::make_shared<HeapAdapter<PS_CMP>>()}{}
 
-void PrioritySelectionNonExpulsive::process_algorithm(bool *going)
+void PrioritySelectionNonExpulsive::process_algorithm(/*bool GlobalVariables::going*/)
 {
-    while(*going)
+    while(GlobalVariables::going)
     {
         if(!process_queue.empty())
         {
@@ -138,7 +138,7 @@ void PrioritySelectionNonExpulsive::process_algorithm(bool *going)
             current_process.update_status(STATUS::IN_EXECUTION);
             //std::cout << current_process << std::endl;
             //std::this_thread::sleep_for(std::chrono::milliseconds(current_process.get_time()));
-            sleep_for(current_process.get_time(), going);
+            sleep_for(current_process.get_time()/*, going*/);
             current_process.update_status(STATUS::COMPLETED);
             //std::cout << current_process << std::endl;
         }
@@ -150,9 +150,9 @@ void PrioritySelectionNonExpulsive::process_algorithm(bool *going)
 PrioritySelectionExpulsive::PrioritySelectionExpulsive()
     : Algorithm{std::make_shared<HeapAdapter<PS_CMP>>()}{}
 
-void PrioritySelectionExpulsive::process_algorithm(bool *going)
+void PrioritySelectionExpulsive::process_algorithm(/*bool GlobalVariables::going*/)
 {
-    while(*going)
+    while(GlobalVariables::going)
     {
         if(!process_queue.empty())
         {
@@ -165,7 +165,7 @@ void PrioritySelectionExpulsive::process_algorithm(bool *going)
             uint64_t time_counter = 0, delta = 0;
             auto process_time_duration = current_process.get_time();
             auto process_priority = current_process.get_priority();
-            while(*going)
+            while(GlobalVariables::going)
             {
                 delta = process_time_duration - time_counter;
                 auto tp2 = std::chrono::high_resolution_clock::now();
@@ -175,15 +175,18 @@ void PrioritySelectionExpulsive::process_algorithm(bool *going)
                     current_process.update_status(STATUS::COMPLETED);
                     break;
                 }
-                if(process_queue.top().get_priority() < process_priority)
+                if (!process_queue.empty())
                 {
-                    current_process.update_status(STATUS::BLOCKED);
-                    current_process.update_time(delta);
-                    blocked_queue.push(current_process);
-                    break;
+                    if(process_queue.top().get_priority() < process_priority)
+                    {
+                        current_process.update_status(STATUS::BLOCKED);
+                        current_process.update_time(delta);
+                        blocked_queue.push(current_process);
+                        break;
+                    }
                 }
                 tp1 = tp2;
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                std::this_thread::sleep_for(std::chrono::milliseconds(GlobalVariables::tick));
             }
         }
         /*Process next = process_queue.top();
@@ -207,10 +210,10 @@ void PrioritySelectionExpulsive::process_algorithm(bool *going)
 RoundRobin::RoundRobin()
     : Algorithm{std::make_shared<QueueAdapter>()}{}
 
-void RoundRobin::process_algorithm(bool *going)
+void RoundRobin::process_algorithm(/*bool GlobalVariables::going*/)
 {
     size_t quantum = 2000;
-    while(*going)
+    while(GlobalVariables::going)
     {
         if(!process_queue.empty())
         {
@@ -222,7 +225,7 @@ void RoundRobin::process_algorithm(bool *going)
             if(current_process.get_time() > quantum)
             {
                 //std::this_thread::sleep_for(std::chrono::milliseconds(quantum));
-                sleep_for(quantum, going);
+                sleep_for(quantum/*, going*/);
                 current_process.update_status(STATUS::BLOCKED);
                 //std::cout << current_process << std::endl;
                 current_process.update_time(current_process.get_time() - quantum);
@@ -230,7 +233,7 @@ void RoundRobin::process_algorithm(bool *going)
             }else
             {
                 //std::this_thread::sleep_for(std::chrono::milliseconds(current_process.get_time()));
-                sleep_for(current_process.get_time(), going);
+                sleep_for(current_process.get_time()/*, going*/);
                 current_process.update_status(STATUS::COMPLETED);
                 //std::cout << current_process << std::endl;
             }
@@ -249,11 +252,11 @@ struct SRTF_CMP
 ShortestRemainingTimeFirst::ShortestRemainingTimeFirst()
     : Algorithm{std::make_shared<HeapAdapter<SRTF_CMP>>()}{}
 
-void ShortestRemainingTimeFirst::process_algorithm(bool *going)
+void ShortestRemainingTimeFirst::process_algorithm(/*bool GlobalVariables::going*/)
 {
     //size_t quantum = 100;
     //bool flag = 0;
-    while(*going)
+    while(GlobalVariables::going)
     {
         if(!process_queue.empty())
         {
@@ -268,7 +271,7 @@ void ShortestRemainingTimeFirst::process_algorithm(bool *going)
             auto tp1 = std::chrono::high_resolution_clock::now();
             uint64_t time_counter = 0, delta = 0;
             auto process_time_duration = current_process.get_time();
-            while(*going)
+            while(GlobalVariables::going)
             {
                 delta = process_time_duration - time_counter;
                 auto tp2 = std::chrono::high_resolution_clock::now();
@@ -279,15 +282,18 @@ void ShortestRemainingTimeFirst::process_algorithm(bool *going)
                     current_process.update_status(STATUS::COMPLETED);
                     break;
                 }
-                if(process_queue.top().get_time() < delta)
+                if (!process_queue.empty())
                 {
-                    current_process.update_status(STATUS::BLOCKED);
-                    current_process.update_time(delta);
-                    blocked_queue.push(current_process);
-                    break;
+                    if(process_queue.top().get_time() < delta)
+                    {
+                        current_process.update_status(STATUS::BLOCKED);
+                        current_process.update_time(delta);
+                        blocked_queue.push(current_process);
+                        break;
+                    }
                 }
                 tp1 = tp2;
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                std::this_thread::sleep_for(std::chrono::milliseconds(GlobalVariables::tick));
             }
         }
         /*

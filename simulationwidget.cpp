@@ -1,9 +1,11 @@
 #include "simulationwidget.hpp"
 
 SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
-    : QWidget{parent}, going{true}
+    : QWidget{parent}/*, GlobalVariables::going{true}*/
 {
-    //Creation of Algorithm 
+    GlobalVariables::going = true;
+    Process::counter = 1;
+    //Creation of Algorithm
     switch (type)
     {
         case AlgorithmType::FCFS:
@@ -48,16 +50,16 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
 
     this->setLayout(&layout);
 
-    processes_list.setFixedSize(120, 300);
+    processes_list.setFixedSize(200, 300);
     processes_layout.addWidget(&processes_list, 0, Qt::AlignCenter);
-    current_list.setFixedSize(120, 50);
+    current_list.setFixedSize(200, 50);
     processes_layout.addWidget(&current_list, 0, Qt::AlignTop);
-    compleated_list.setFixedSize(120, 300);
+    compleated_list.setFixedSize(200, 300);
     processes_layout.addWidget(&compleated_list, 0, Qt::AlignCenter);
-    
+
     if (has_blocked_list)
     {
-        blocked_list.setFixedSize(120, 300);
+        blocked_list.setFixedSize(200, 300);
         processes_layout.addWidget(&blocked_list, 0, Qt::AlignCenter);
     }
 
@@ -76,7 +78,7 @@ void SimulationWidget::sleep_for(ulong time)
 {
     auto tp1 = std::chrono::high_resolution_clock::now();
     uint64_t time_counter = 0;
-    while(going)
+    while(GlobalVariables::going)
     {
         auto tp2 = std::chrono::high_resolution_clock::now();
         time_counter += std::chrono::duration_cast<std::chrono::milliseconds>(tp2 - tp1).count();
@@ -85,7 +87,7 @@ void SimulationWidget::sleep_for(ulong time)
             break;
         }
         tp1 = tp2;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(GlobalVariables::tick));
     }
 }
 
@@ -93,7 +95,7 @@ void SimulationWidget::create_threads()
 {
 
     auto pred = [this] () {
-        algorithm->process_algorithm(&going);
+        algorithm->process_algorithm(/*&GlobalVariables::going*/);
     };
     processes = std::thread{pred};
 
@@ -101,17 +103,17 @@ void SimulationWidget::create_threads()
 
     ConcurrentQueue& processes_queue = algorithm->get_process_queue();
     ConcurrentQueue& blocked_queue = algorithm->get_blocked_queue();
-    double lambda = 2000;
-    auto process_creation = [this, &processes_queue, &lambda] ()  {
+
+    auto process_creation = [this, &processes_queue] ()  {
         std::random_device rd;
         std::mt19937 gen(rd());
         Process::counter = 1;
-        std::exponential_distribution<double> exp_dist(1.0 / lambda);
+        std::exponential_distribution<double> exp_dist(1.0 / GlobalVariables::lambda);
 
         //sleep_for(250);
         Process random_process = Process::build_random_process(gen);
         //sleep_for(250);
-        while(going)
+        while(GlobalVariables::going)
         {
             std::stringstream ss;
             ss << "Process ID: " << random_process.get_id();
@@ -133,7 +135,7 @@ void SimulationWidget::create_threads()
         const Process& current = algorithm->get_current_process();
         bool waiting = false;
         //sleep_for(500);
-        while (going)
+        while (GlobalVariables::going)
         {
             std::stringstream ss;
             ss << "Process ID: " << current.get_id();
@@ -143,18 +145,20 @@ void SimulationWidget::create_threads()
                 waiting = true;
                 for (int i = 0; i < processes_list.count(); ++i)
                 {
-                    const auto& item = processes_list.takeItem(i);
+                    //const auto& item = processes_list.takeItem(i);
+                    QListWidgetItem* item = processes_list.item(i);
                     QString str1 = item->text();
                     if(str1 == QStr)
                     {
-                        processes_list.removeItemWidget(item);
+                        processes_list.removeItemWidget(processes_list.takeItem(i));
                         break;
                     }
-                    processes_list.insertItem(i, item);
+                    //processes_list.insertItem(i, item);
                 }
                 current_list.addItem(QStr);
-
             }
+
+
             if (current.get_status() == STATUS::COMPLETED && waiting)
             {
                 waiting = false;
@@ -163,14 +167,15 @@ void SimulationWidget::create_threads()
                 //compleated_set.insert(QStr);
                 for (int var = 0; var < processes_list.count(); ++var)
                 {
-                    const auto& item = processes_list.takeItem(var);
+                    //const auto& item = processes_list.takeItem(var);
+                    QListWidgetItem* item = processes_list.item(var);
                     QString str1 = item->text();
                     if(str1 == QStr)
                     {
-                        processes_list.removeItemWidget(item);
+                        processes_list.removeItemWidget(processes_list.takeItem(var));
                         break;
                     }
-                    processes_list.insertItem(var, item);
+                    //processes_list.insertItem(var, item);
                 }
             }
             if(current.get_status() == STATUS::BLOCKED && waiting && has_blocked_list)
@@ -185,15 +190,20 @@ void SimulationWidget::create_threads()
     modify_lists = std::thread(mod);
     if (has_blocked_list)
     {
+
         auto blocked = [this, &processes_queue, &blocked_queue] ()
-        {
-            sleep_for(500);
-            while(going/* || !blocked_queue.empty()*/ /*|| blocked_queue.size() > 0*/)
+        {           
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution<size_t> time_dist(1000, 3000);
+            //sleep_for(time_dis);
+            while(GlobalVariables::going/* || !blocked_queue.empty()*/ /*|| blocked_queue.size() > 0*/)
             {
                 if(!blocked_queue.empty())
                 {
                     Process curr = blocked_queue.pop();
-                    sleep_for(1500);
+                    size_t random_time = time_dist(gen);
+                    sleep_for(random_time);
                     blocked_list.removeItemWidget(blocked_list.takeItem(0));
                     std::stringstream ss;
                     ss << "Process ID: " << curr.get_id();
@@ -211,7 +221,7 @@ void SimulationWidget::create_threads()
 
 void SimulationWidget::on_button_close_pressed()
 {
-    going = false;
+    GlobalVariables::going = false;
     simulation_closed = true;
     if (has_blocked_list)
     {
@@ -228,7 +238,7 @@ SimulationWidget::~SimulationWidget()
 {
     if (!simulation_closed)
     {
-        going = false;
+        GlobalVariables::going = false;
         processes_creator.join();
         processes.join();
         modify_lists.join();

@@ -5,6 +5,7 @@
 #include <random>
 #include <vector>
 #include <chrono>
+#include "globalvariables.hpp"
 
 enum STATUS
 {
@@ -22,7 +23,7 @@ public:
 
     Process() = default;
     long get_id() const noexcept;
-    size_t get_time() const noexcept;
+    int64_t get_time() const noexcept;
     size_t get_priority() const noexcept;
     STATUS get_status() const noexcept;
     void update_status(STATUS _status) noexcept;
@@ -35,17 +36,14 @@ public:
 
 private:
 
-    Process(size_t _time, size_t priority) noexcept;
+    Process(int64_t _burst_time, int64_t _io_burst_time, size_t _priority) noexcept;
     long id;
-    size_t time;
+    int64_t time;
+    int64_t burst_time;
+    int64_t io_burst_time;
     int64_t creation_time;
-    int64_t end_time; //execution time
+    int64_t end_time;
     int64_t wait_time;
-    int64_t answer_time;
-    size_t on_going_time;
-    // size_t execution_time;
-    // size_t wait_time;
-    // size_t answer_time;
     size_t priority;
     STATUS status;
 };

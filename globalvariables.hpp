@@ -14,6 +14,8 @@ public:
     static uint64_t total_processes_compleated;
     static uint64_t total_processes_created;
     static uint64_t total_processes_blocked;
+    static int lambda;
+    static int tick;
 };
 
 #endif // GLOBALVARIABLES_HPP

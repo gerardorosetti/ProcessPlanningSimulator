@@ -28,15 +28,15 @@ private:
     QListWidget current_list;
     QListWidget compleated_list;
     QListWidget blocked_list;
-    
+
     std::shared_ptr<Algorithm> algorithm;
-    
+
     std::thread processes;
     std::thread processes_creator;
     std::thread modify_lists;
     std::thread blocked_thread;
 
-    bool going;
+    //bool going;
     bool simulation_closed{false};
     bool has_blocked_list;
 

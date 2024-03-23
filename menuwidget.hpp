@@ -5,7 +5,9 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QLabel>
-#include <QLineEdit>
+//#include <QLineEdit>
+#include <QSpinBox>
+#include <globalvariables.hpp>
 
 class MenuWidget : public QWidget
 {
@@ -14,6 +16,8 @@ public:
     explicit MenuWidget(QWidget *parent = nullptr);
 public:
     QVBoxLayout layout;
+    QHBoxLayout settings_layout;
+
     QPushButton FCFS;
     QPushButton RS;
     QPushButton PNE;
@@ -30,6 +34,8 @@ private slots:
     void on_RR_pressed();
     void on_SRTF_pressed();
     void on_PE_pressed();
+    void update_lambda(int);
+    void update_tick(int);
 signals:
     void FCFS_pressed();
     void RS_pressed();
