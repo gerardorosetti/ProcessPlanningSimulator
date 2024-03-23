@@ -106,6 +106,7 @@ void SimulationWidget::create_threads()
         std::random_device rd;
         std::mt19937 gen(rd());
         sleep_for(250);
+        Process::counter = 1;
         Process random_process = Process::build_random_process(gen);
         sleep_for(250);
         while(going)
@@ -147,6 +148,7 @@ void SimulationWidget::create_threads()
                     processes_list.insertItem(i, item);
                 }
                 current_list.addItem(QStr);
+
             }
             if (current.get_status() == STATUS::COMPLETED && waiting)
             {
