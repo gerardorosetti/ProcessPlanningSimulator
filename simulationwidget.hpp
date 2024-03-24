@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QFrame>
 #include <sstream>
+#include <QLabel>
 #include <unordered_set>
 
 class SimulationWidget : public QWidget
@@ -20,25 +21,62 @@ public:
     ~SimulationWidget();
 
 private:
+    //layouts
     QVBoxLayout layout;
     QHBoxLayout processes_layout;
+    QHBoxLayout report_layout;
     QHBoxLayout buttons_layout;
+
+    QVBoxLayout time_layout;
+    QVBoxLayout cpu_layout;
+    QVBoxLayout created_layout;
+    QVBoxLayout compleated_layout;
+    QVBoxLayout blocked_layout;
+    QVBoxLayout waited_layout;
+    QVBoxLayout execute_layout;
+    QVBoxLayout blocked_t_layout;
+
+    //lists
     QListWidget process;
-    QPushButton button_close;
-    QPushButton button_stop;
     QListWidget processes_list;
     QListWidget current_list;
     QListWidget compleated_list;
     QListWidget blocked_list;
 
+    //buttons
+    QPushButton button_close;
+    QPushButton button_stop;
+
+    //labels for tittle report
+    QLabel *total_time_t = new QLabel("Total Time: ");
+    QLabel *CPU_usage_t = new QLabel("CPU usage");
+    QLabel *total_process_created_t = new QLabel("Process Created: ");
+    QLabel *total_process_compleated_t = new QLabel("Process Compleated: ");
+    QLabel *total_process_blocked_t = new QLabel("Process Blocked: ");
+    QLabel *average_waited_time_t = new QLabel("Average Waited Time: ");
+    QLabel *average_executed_time_t = new QLabel("Average Executed Time: ");
+    QLabel *average_blocked_time_t = new QLabel("average blocked time");
+
+
+    //labels for reports
+    QLabel *total_time = new QLabel("Total Time: ");
+    QLabel *CPU_usage = new QLabel("CPU usage");
+    QLabel *total_process_created = new QLabel("Process Created: ");
+    QLabel *total_process_compleated = new QLabel("Process Compleated: ");
+    QLabel *total_process_blocked = new QLabel("Process Blocked: ");
+    QLabel *average_waited_time = new QLabel("Average Waited Time: ");
+    QLabel *average_executed_time = new QLabel("Average Executed Time: ");
+    QLabel *average_blocked_time = new QLabel("average blocked time");
+
+    //algorithm
     std::shared_ptr<Algorithm> algorithm;
 
+    //threads
     std::thread processes;
     std::thread processes_creator;
     std::thread modify_lists;
     std::thread blocked_thread;
 
-    //bool going;
     bool simulation_closed{false};
     bool has_blocked_list;
 

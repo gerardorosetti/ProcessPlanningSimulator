@@ -53,7 +53,7 @@ MenuWidget::MenuWidget(QWidget *parent)
     settings_layout.addWidget(lambda);
 
     QSpinBox *input_lambda = new QSpinBox();
-    input_lambda->setRange(200,10000);
+    input_lambda->setRange(2000,10000);
     settings_layout.addWidget(input_lambda);
     input_lambda->setFixedSize(200,30);
 
