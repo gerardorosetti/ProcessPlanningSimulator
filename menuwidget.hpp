@@ -1,3 +1,8 @@
+/*
+    2024
+    This file contains the declaration of the class MenuWidget.
+    This widget is for showing the buttons for pick an algorithm
+*/
 #ifndef MENUWIDGET_HPP
 #define MENUWIDGET_HPP
 
@@ -5,7 +10,6 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QLabel>
-//#include <QLineEdit>
 #include <QSpinBox>
 #include <globalvariables.hpp>
 
@@ -18,6 +22,7 @@ public:
     QVBoxLayout layout;
     QHBoxLayout settings_layout;
 
+    //Buttons for each Algorithm
     QPushButton FCFS;
     QPushButton RS;
     QPushButton PNE;

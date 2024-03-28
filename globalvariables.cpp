@@ -2,8 +2,7 @@
     2024
     This file contains the definition of the class GlobalVariables.
 */
-
-#include "globalvariables.hpp"
+#include <globalvariables.hpp>
 
 bool GlobalVariables::going = true;
 double GlobalVariables::total_time;
@@ -36,6 +35,8 @@ void GlobalVariables::reset()
     GlobalVariables::lambda = 2000;
     GlobalVariables::tick = 1;
 }
+
+//calculate the variables for showing at the stop of the simulation
 void GlobalVariables::update()
 {
     if(GlobalVariables::total_processes_blocked == 0)

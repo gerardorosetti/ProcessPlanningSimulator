@@ -1,11 +1,14 @@
-#include "menuwidget.hpp"
+/*
+    2024
+    This file contains the definition of the class MenuWidget.
+*/
+#include <menuwidget.hpp>
 
 MenuWidget::MenuWidget(QWidget *parent)
     : QWidget{parent}
 {
     this->setLayout(&layout);
     
-    //size of window
     int width = 300, height = 50;
 
     QLabel *label_1 = new QLabel("Process Planning Algorithms");
@@ -78,7 +81,6 @@ MenuWidget::MenuWidget(QWidget *parent)
     connect(&RR, SIGNAL(clicked(bool)), this, SLOT(on_RR_pressed()));
     connect(&SRTF, SIGNAL(clicked(bool)), this, SLOT(on_SRTF_pressed()));
     connect(&PE, SIGNAL(clicked(bool)), this, SLOT(on_PE_pressed()));
-
 }
 
 void MenuWidget::on_FCFS_pressed()

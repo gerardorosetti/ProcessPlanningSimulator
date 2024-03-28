@@ -1,3 +1,8 @@
+/*
+    2024
+    This file contains the declaration of the class TittleWidget.
+    This widget shows the first scene whit the tittle and a button start
+*/
 #ifndef TITLEWIDGET_H
 #define TITLEWIDGET_H
 

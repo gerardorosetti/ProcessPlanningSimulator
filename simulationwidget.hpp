@@ -1,3 +1,8 @@
+/*
+    2024
+    This file contains the declaration of the class SimulationWidget.
+    This widget is for the simulation.
+*/
 #ifndef SIMULATIONWIDGET_HPP
 #define SIMULATIONWIDGET_HPP
 
@@ -37,7 +42,7 @@ private:
     QVBoxLayout execute_layout;
     QVBoxLayout blocked_t_layout;
 
-    //lists
+    //Lists
     QListWidget process;
     QListWidget processes_list;
     QListWidget current_list;
@@ -80,8 +85,8 @@ private:
 
     bool simulation_closed{false};
 
-    std::chrono::time_point<std::chrono::high_resolution_clock> start_point;
-    std::chrono::time_point<std::chrono::high_resolution_clock> end_point;
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_point;//start time point of the simulation
+    std::chrono::time_point<std::chrono::high_resolution_clock> end_point;//end time point of the simulation
 
     void sleep_for(ulong);
 

@@ -1,3 +1,8 @@
+/*
+    2024
+    This file contains the declaration of the class MainWidget.
+    this class is for managing the diferent widgets(let's say scenes) in the app
+*/
 #ifndef MAINWIDGET_HPP
 #define MAINWIDGET_HPP
 
@@ -21,6 +26,7 @@ private:
     SimulationWidget* simulation_widget;
 
     void disconnect_slots();
+    void connect_slots();
 
 private slots:
     void on_button_start_pressed();

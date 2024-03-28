@@ -2,7 +2,7 @@
     2024
     This file contains the definition of the class Process.
 */
-#include "process.hpp"
+#include <process.hpp>
 
 long Process::counter = 1;
 

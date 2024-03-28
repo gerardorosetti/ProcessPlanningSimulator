@@ -1,4 +1,8 @@
-#include "titlewidget.hpp"
+/*
+    2024
+    This file contains the definition of the class TitleWidget.
+*/
+#include <titlewidget.hpp>
 
 TitleWidget::TitleWidget(QWidget *parent)
     : QWidget{parent}
@@ -14,7 +18,6 @@ TitleWidget::TitleWidget(QWidget *parent)
 
     button.setFixedSize(100, 50);
     button.setText("Start");
-    //button.setStyleSheet("background-color: #4CAF50; color: white; font-size: 16px; border: 2px solid #4CAF50; border-radius: 10px;");
     layout.addWidget(&button, 0, Qt::AlignCenter);
 
     connect(&button, SIGNAL(clicked(bool)), this, SLOT(on_button_pressed()));

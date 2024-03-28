@@ -3,13 +3,11 @@
     This file contains the definition of the class Algorithm.
 */
 
-#include "algorithms.hpp"
+#include <algorithms.hpp>
 
 Algorithm::Algorithm(std::shared_ptr<QueueInterface> adapter) noexcept
     : process_queue{adapter}, blocked_queue{std::make_shared<QueueAdapter>()}
 {}
-
-// non-expulsive algorithms
 ConcurrentQueue& Algorithm::get_process_queue()
 {
     return process_queue;
@@ -25,6 +23,8 @@ const Process& Algorithm::get_current_process()
     return current_process;
 }
 
+
+//sleep_for based on the tick picked
 void sleep_for(ulong time)
 {
     auto tp1 = std::chrono::high_resolution_clock::now();
@@ -41,6 +41,27 @@ void sleep_for(ulong time)
         std::this_thread::sleep_for(std::chrono::milliseconds(GlobalVariables::tick));
     }
 }
+
+//Comparator for the heap adapter, based on the time that the process have
+struct TIME_CMP
+{
+    bool operator() (const Process& a, const Process& b)
+    {
+        return a.get_time() > b.get_time();
+    }
+};
+
+//Comparator for the heap adapter, based on the priority that the process have
+struct PRIORITY_CMP
+{
+    bool operator() (const Process& a, const Process& b)
+    {
+        return a.get_priority() > b.get_priority();
+    }
+};
+
+
+//Non-expulsive Algorithms
 
 FirstComeFirstServed::FirstComeFirstServed()
     : Algorithm{std::make_shared<QueueAdapter>()}{}
@@ -65,18 +86,10 @@ void FirstComeFirstServed::process_algorithm()
     }
 }
 
-struct SJF_CMP
-{
-    bool operator() (const Process& a, const Process& b)
-    {
-        return a.get_time() > b.get_time();
-    }
-};
-
 ShortestJobFirst::ShortestJobFirst()
-    : Algorithm{std::make_shared<HeapAdapter<SJF_CMP>>()}{}
+    : Algorithm{std::make_shared<HeapAdapter<TIME_CMP>>()}{}
 
-void ShortestJobFirst::process_algorithm(/*bool GlobalVariables::going*/)
+void ShortestJobFirst::process_algorithm()
 {
     while(GlobalVariables::going)
     {
@@ -101,7 +114,7 @@ void ShortestJobFirst::process_algorithm(/*bool GlobalVariables::going*/)
 RandomSelection::RandomSelection()
     : Algorithm{std::make_shared<VectorAdapter>()}{}
 
-void RandomSelection::process_algorithm(/*bool GlobalVariables::going*/)
+void RandomSelection::process_algorithm()
 {
     while(GlobalVariables::going)
     {
@@ -123,17 +136,10 @@ void RandomSelection::process_algorithm(/*bool GlobalVariables::going*/)
     }
 }
 
-struct PS_CMP
-{
-    bool operator() (const Process& a, const Process& b)
-    {
-        return a.get_priority() > b.get_priority();
-    }
-};
 PrioritySelectionNonExpulsive::PrioritySelectionNonExpulsive()
-    : Algorithm{std::make_shared<HeapAdapter<PS_CMP>>()}{}
+    : Algorithm{std::make_shared<HeapAdapter<PRIORITY_CMP>>()}{}
 
-void PrioritySelectionNonExpulsive::process_algorithm(/*bool GlobalVariables::going*/)
+void PrioritySelectionNonExpulsive::process_algorithm()
 {
     while(GlobalVariables::going)
     {
@@ -154,12 +160,12 @@ void PrioritySelectionNonExpulsive::process_algorithm(/*bool GlobalVariables::go
     }
 }
 
-// expulsive algorithms
+// Expulsive Algorithms
 
 PrioritySelectionExpulsive::PrioritySelectionExpulsive()
-    : Algorithm{std::make_shared<HeapAdapter<PS_CMP>>()}{}
+    : Algorithm{std::make_shared<HeapAdapter<PRIORITY_CMP>>()}{}
 
-void PrioritySelectionExpulsive::process_algorithm(/*bool GlobalVariables::going*/)
+void PrioritySelectionExpulsive::process_algorithm()
 {
     while(GlobalVariables::going)
     {
@@ -212,7 +218,7 @@ void PrioritySelectionExpulsive::process_algorithm(/*bool GlobalVariables::going
 RoundRobin::RoundRobin()
     : Algorithm{std::make_shared<QueueAdapter>()}{}
 
-void RoundRobin::process_algorithm(/*bool GlobalVariables::going*/)
+void RoundRobin::process_algorithm()
 {
     size_t quantum = 2000;
     while(GlobalVariables::going)
@@ -246,18 +252,10 @@ void RoundRobin::process_algorithm(/*bool GlobalVariables::going*/)
     }
 }
 
-struct SRTF_CMP
-{
-    bool operator() (const Process& a, const Process& b)
-    {
-        return a.get_time() > b.get_time();
-    }
-};
-
 ShortestRemainingTimeFirst::ShortestRemainingTimeFirst()
-    : Algorithm{std::make_shared<HeapAdapter<SRTF_CMP>>()}{}
+    : Algorithm{std::make_shared<HeapAdapter<TIME_CMP>>()}{}
 
-void ShortestRemainingTimeFirst::process_algorithm(/*bool GlobalVariables::going*/)
+void ShortestRemainingTimeFirst::process_algorithm()
 {
     while(GlobalVariables::going)
     {

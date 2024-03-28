@@ -11,7 +11,7 @@
 #include <mutex>
 #include <queue>
 
-#include "process.hpp"
+#include <process.hpp>
 
 class QueueInterface
 {

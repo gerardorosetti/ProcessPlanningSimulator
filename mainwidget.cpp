@@ -1,4 +1,8 @@
-#include "mainwidget.hpp"
+/*
+    2024
+    This file contains the definition of the class MainWidget.
+*/
+#include <mainwidget.hpp>
 
 MainWidget::MainWidget(QWidget *parent)
     : QWidget{parent}
@@ -9,29 +13,8 @@ MainWidget::MainWidget(QWidget *parent)
     this->setWindowTitle("PROCESS PLANNING SIMULATOR");
     layout.addWidget(title_widget);
     connect(title_widget,SIGNAL(button_pressed()),this,SLOT(on_button_start_pressed()));
-
-    //connect(simulation_widget,SIGNAL(button_close_pressed()),this,SLOT(on_button_close_pressed()));
 }
 
-void MainWidget::on_button_close_pressed()
-{
-    //std::cout << "\ntest\n";
-
-    layout.removeWidget(simulation_widget);
-    disconnect(simulation_widget,SIGNAL(button_close_pressed()),this,SLOT(on_button_close_pressed()));
-    delete simulation_widget;
-    simulation_widget = nullptr;
-    menu_widget = new MenuWidget{this};
-    layout.addWidget(menu_widget);
-    connect(menu_widget,SIGNAL(FCFS_pressed()),this,SLOT(on_FCFS_pressed()));
-    connect(menu_widget,SIGNAL(RS_pressed()),this,SLOT(on_RS_pressed()));
-    connect(menu_widget,SIGNAL(PNE_pressed()),this,SLOT(on_PNE_pressed()));
-    connect(menu_widget,SIGNAL(SJF_pressed()),this,SLOT(on_SJF_pressed()));
-    connect(menu_widget,SIGNAL(RR_pressed()),this,SLOT(on_RR_pressed()));
-    connect(menu_widget,SIGNAL(SRTF_pressed()),this,SLOT(on_SRTF_pressed()));
-    connect(menu_widget,SIGNAL(PE_pressed()),this,SLOT(on_PE_pressed()));
-
-}
 
 void MainWidget::disconnect_slots()
 {
@@ -44,6 +27,17 @@ void MainWidget::disconnect_slots()
     disconnect(menu_widget,SIGNAL(PE_pressed()),this,SLOT(on_PE_pressed()));
 }
 
+void MainWidget::connect_slots()
+{
+    connect(menu_widget,SIGNAL(FCFS_pressed()),this,SLOT(on_FCFS_pressed()));
+    connect(menu_widget,SIGNAL(RS_pressed()),this,SLOT(on_RS_pressed()));
+    connect(menu_widget,SIGNAL(PNE_pressed()),this,SLOT(on_PNE_pressed()));
+    connect(menu_widget,SIGNAL(SJF_pressed()),this,SLOT(on_SJF_pressed()));
+    connect(menu_widget,SIGNAL(RR_pressed()),this,SLOT(on_RR_pressed()));
+    connect(menu_widget,SIGNAL(SRTF_pressed()),this,SLOT(on_SRTF_pressed()));
+    connect(menu_widget,SIGNAL(PE_pressed()),this,SLOT(on_PE_pressed()));
+}
+
 void MainWidget::on_button_start_pressed()
 {
     layout.removeWidget(title_widget);
@@ -52,13 +46,7 @@ void MainWidget::on_button_start_pressed()
     title_widget = nullptr;
     menu_widget = new MenuWidget{this};
     layout.addWidget(menu_widget);
-    connect(menu_widget,SIGNAL(FCFS_pressed()),this,SLOT(on_FCFS_pressed()));
-    connect(menu_widget,SIGNAL(RS_pressed()),this,SLOT(on_RS_pressed()));
-    connect(menu_widget,SIGNAL(PNE_pressed()),this,SLOT(on_PNE_pressed()));
-    connect(menu_widget,SIGNAL(SJF_pressed()),this,SLOT(on_SJF_pressed()));
-    connect(menu_widget,SIGNAL(RR_pressed()),this,SLOT(on_RR_pressed()));
-    connect(menu_widget,SIGNAL(SRTF_pressed()),this,SLOT(on_SRTF_pressed()));
-    connect(menu_widget,SIGNAL(PE_pressed()),this,SLOT(on_PE_pressed()));
+    connect_slots();
 }
 void MainWidget::on_FCFS_pressed()
 {
@@ -135,4 +123,15 @@ void MainWidget::on_PE_pressed()
     simulation_widget = new SimulationWidget{AlgorithmType::PE,this};
     layout.addWidget(simulation_widget);
     connect(simulation_widget,SIGNAL(button_close_pressed()),this,SLOT(on_button_close_pressed()));
+}
+
+void MainWidget::on_button_close_pressed()
+{
+    layout.removeWidget(simulation_widget);
+    disconnect(simulation_widget,SIGNAL(button_close_pressed()),this,SLOT(on_button_close_pressed()));
+    delete simulation_widget;
+    simulation_widget = nullptr;
+    menu_widget = new MenuWidget{this};
+    layout.addWidget(menu_widget);
+    connect_slots();
 }

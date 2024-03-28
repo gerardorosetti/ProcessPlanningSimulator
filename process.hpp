@@ -9,7 +9,7 @@
 #include <random>
 #include <vector>
 #include <chrono>
-#include "globalvariables.hpp"
+#include <globalvariables.hpp>
 
 enum STATUS
 {

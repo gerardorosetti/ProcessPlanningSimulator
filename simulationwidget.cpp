@@ -1,4 +1,8 @@
-#include "simulationwidget.hpp"
+/*
+    2024
+    This file contains the definition of the class SimulationWidget.
+*/
+#include <simulationwidget.hpp>
 
 SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
     : QWidget{parent}
@@ -282,18 +286,23 @@ void SimulationWidget::sleep_for(ulong time)
 
 void SimulationWidget::create_threads()
 {
-
+    /*
+        The "processes" thread its mean to be calling the method process algorithm
+        anytime there are new process created
+    */
     auto pred = [this] ()
     {
         algorithm->process_algorithm();
     };
     processes = std::thread{pred};
 
-    sleep_for(150);
-
     ConcurrentQueue& processes_queue = algorithm->get_process_queue();
     ConcurrentQueue& blocked_queue = algorithm->get_blocked_queue();
 
+    /*
+        The "processes_creator" thread its mean to be creating new process
+        and adding them to the processes queue
+    */
     auto process_creation = [this, &processes_queue] ()
     {
         sleep_for(1000);
@@ -321,6 +330,43 @@ void SimulationWidget::create_threads()
         Process::counter = 1;
     };
     processes_creator = std::thread(process_creation);
+
+    /*
+        The "blocked_thread" thread its mean to be cheking the blocked queue
+        pop them when their time ends and push them back to the processes queue
+    */
+    auto blocked = [this, &processes_queue, &blocked_queue] ()
+    {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<size_t> time_dist(1000, 3000);
+        while(GlobalVariables::going)
+        {
+            if(!blocked_queue.empty())
+            {
+                Process curr = blocked_queue.pop();
+                size_t random_time = time_dist(gen);
+                sleep_for(random_time);
+                GlobalVariables::total_blocked_time += random_time;
+                ++GlobalVariables::total_processes_blocked;
+                blocked_list.removeItemWidget(blocked_list.takeItem(0));
+                std::stringstream ss;
+                ss << "Process ID: " << curr.get_id();
+                QListWidgetItem* newItem = new QListWidgetItem(QString::fromStdString(ss.str()));
+                newItem->setTextAlignment(Qt::AlignHCenter);
+                processes_list.addItem(newItem);
+                curr.update_status(STATUS::READY);
+                curr.update_creation_time(std::chrono::system_clock::now().time_since_epoch().count());
+                processes_queue.push(curr);
+            }
+        }
+    };
+    blocked_thread = std::thread(blocked);
+
+    /*
+        The "modify_list" thread its mean to be updating the visual part
+        of the application
+    */
     auto mod = [this] ()
     {
         const Process& current = algorithm->get_current_process();
@@ -390,36 +436,8 @@ void SimulationWidget::create_threads()
             }
         }
     };
+
     modify_lists = std::thread(mod);
-
-    auto blocked = [this, &processes_queue, &blocked_queue] ()
-    {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<size_t> time_dist(1000, 3000);
-        while(GlobalVariables::going)
-        {
-            if(!blocked_queue.empty())
-            {
-                Process curr = blocked_queue.pop();
-                size_t random_time = time_dist(gen);
-                sleep_for(random_time);
-                GlobalVariables::total_blocked_time += random_time;
-                ++GlobalVariables::total_processes_blocked;
-                blocked_list.removeItemWidget(blocked_list.takeItem(0));
-                std::stringstream ss;
-                ss << "Process ID: " << curr.get_id();
-                QListWidgetItem* newItem = new QListWidgetItem(QString::fromStdString(ss.str()));
-                newItem->setTextAlignment(Qt::AlignHCenter);
-                processes_list.addItem(newItem);
-                curr.update_status(STATUS::READY);
-                curr.update_creation_time(std::chrono::system_clock::now().time_since_epoch().count());
-                processes_queue.push(curr);
-            }
-        }
-    };
-    blocked_thread = std::thread(blocked);
-
 }
 
 void SimulationWidget::on_button_close_pressed()
