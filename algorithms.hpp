@@ -9,9 +9,13 @@
 
 #include <process.hpp>
 #include <concurrent_queue.hpp>
+
 #include <queue>
+#include <iostream>
 #include <thread>
 #include <chrono>
+#include <cstdlib>
+#include <ctime>
 
 enum AlgorithmType{
     FCFS,

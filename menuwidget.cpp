@@ -65,7 +65,7 @@ MenuWidget::MenuWidget(QWidget *parent)
     settings_layout.addWidget(tick);
 
     QSpinBox *input_tick = new QSpinBox();
-    input_tick->setRange(1,10);
+    input_tick->setRange(1,100);
     settings_layout.addWidget(input_tick);
     input_tick->setFixedSize(200,30);
 

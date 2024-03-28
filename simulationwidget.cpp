@@ -8,41 +8,56 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
     : QWidget{parent}
 {
     GlobalVariables::going = true;
-    Process::counter = 1;
+    this->setLayout(&layout);
 
     //Creation of Algorithm
     switch (type)
     {
         case AlgorithmType::FCFS:
+            title->setText("First Come First Served");
+            title->setStyleSheet("font-size: 20px; color: #333; font-weight: bold;");
             algorithm = std::make_shared<FirstComeFirstServed>();
             break;
         case AlgorithmType::RS:
+            title->setText("Random Selection");
+            title->setStyleSheet("font-size: 20px; color: #333; font-weight: bold;");
             algorithm = std::make_shared<RandomSelection>();
             break;
         case AlgorithmType::SJF:
+            title->setText("Shortest Job First");
+            title->setStyleSheet("font-size: 20px; color: #333; font-weight: bold;");
             algorithm = std::make_shared<ShortestJobFirst>();
             break;
         case AlgorithmType::PNE:
+            title->setText("Priority");
+            title->setStyleSheet("font-size: 20px; color: #333; font-weight: bold;");
             algorithm = std::make_shared<PrioritySelectionNonExpulsive>();
             break;
         case AlgorithmType::RR:
+            title->setText("Round Robin");
+            title->setStyleSheet("font-size: 20px; color: #333; font-weight: bold;");
             algorithm = std::make_shared<RoundRobin>();
             break;
         case AlgorithmType::SRTF:
+            title->setText("Shortest Remaining Time First");
+            title->setStyleSheet("font-size: 20px; color: #333; font-weight: bold;");
             algorithm = std::make_shared<ShortestRemainingTimeFirst>();
             break;
         case AlgorithmType::PE:
+            title->setText("Priority");
+            title->setStyleSheet("font-size: 20px; color: #333; font-weight: bold;");
             algorithm = std::make_shared<PrioritySelectionExpulsive>();
             break;
         default:
             break;
     }
 
-    this->setLayout(&layout);
+    tittle.addWidget(title);
+    tittle.addLayout(&processes_tittle_layout);
 
     QWidget *containerWidget = new QWidget;
-    containerWidget->setFixedSize(800, 50);
-    containerWidget->setLayout(&processes_tittle_layout);
+    containerWidget->setFixedSize(800, 70);
+    containerWidget->setLayout(&tittle);
 
     QLabel *ready = new QLabel("Ready");
     ready->setStyleSheet("font-size: 20px; color: rgba(0, 51, 102, 0.8); font-weight: bold;");
@@ -286,16 +301,6 @@ void SimulationWidget::sleep_for(ulong time)
 
 void SimulationWidget::create_threads()
 {
-    /*
-        The "processes" thread its mean to be calling the method process algorithm
-        anytime there are new process created
-    */
-    auto pred = [this] ()
-    {
-        algorithm->process_algorithm();
-    };
-    processes = std::thread{pred};
-
     ConcurrentQueue& processes_queue = algorithm->get_process_queue();
     ConcurrentQueue& blocked_queue = algorithm->get_blocked_queue();
 
@@ -308,7 +313,7 @@ void SimulationWidget::create_threads()
         sleep_for(1000);
         std::random_device rd;
         std::mt19937 gen(rd());
-        Process::counter = 1;
+        Process::counter = 0;
         std::exponential_distribution<double> exp_dist(1.0 / GlobalVariables::lambda);
         Process random_process = Process::build_random_process(gen);
         while(GlobalVariables::going)
@@ -327,7 +332,6 @@ void SimulationWidget::create_threads()
             sleep_for(static_cast<ulong>(interval));
             random_process = Process::build_random_process(gen);
         }
-        Process::counter = 1;
     };
     processes_creator = std::thread(process_creation);
 
@@ -438,6 +442,16 @@ void SimulationWidget::create_threads()
     };
 
     modify_lists = std::thread(mod);
+
+    /*
+        The "processes" thread its mean to be calling the method process algorithm
+        anytime there are new process created
+    */
+    auto pred = [this] ()
+    {
+        algorithm->process_algorithm();
+    };
+    processes = std::thread{pred};
 }
 
 void SimulationWidget::on_button_close_pressed()

@@ -4,26 +4,35 @@
 */
 #include <process.hpp>
 
-long Process::counter = 1;
+long Process::counter = 0;
 
 Process Process::build_random_process(std::mt19937& gen) noexcept
 {
     std::uniform_int_distribution<size_t> time1_dist(1000,2800);
     std::uniform_int_distribution<size_t> time2_dist(100, 800);
     std::uniform_int_distribution<size_t> priority_dist(1, 10);
+    std::uniform_int_distribution<int> blocked_dist(0, 100);
+
+    size_t random_until_blocked_time = 0;
+
+    if(blocked_dist(gen) < 30)
+    {
+        //se bloquea con un 30% de probabilidad
+        random_until_blocked_time = time2_dist(gen);
+    }
 
     size_t random_burst_time = time1_dist(gen);
     size_t random_io_burst_time = time2_dist(gen);
 
     size_t random_priority = priority_dist(gen);
 
-    Process new_process(random_burst_time, random_io_burst_time, random_priority);
+    Process new_process(random_burst_time, random_io_burst_time, random_priority, random_until_blocked_time);
     return new_process;
 }
 
 
-Process::Process(int64_t _burst_time, int64_t _io_burst_time, size_t _priority) noexcept
-    : id{counter++}, time{_burst_time + _io_burst_time}, priority{_priority}, status{STATUS::CREATED}, burst_time{_burst_time}, io_burst_time{_io_burst_time},
+Process::Process(int64_t _burst_time, int64_t _io_burst_time, size_t _priority, size_t _until_blocked_time) noexcept
+    : id{++counter}, time{_burst_time + _io_burst_time}, until_blocked_time{_until_blocked_time}, priority{_priority}, status{STATUS::CREATED}, burst_time{_burst_time}, io_burst_time{_io_burst_time},
     creation_time{std::chrono::system_clock::now().time_since_epoch().count()} {}
     
 long Process::get_id() const noexcept
@@ -56,9 +65,19 @@ int64_t Process::get_wait_time() const noexcept
     return time;
 }
 
+int64_t Process::get_until_blocked_time() const noexcept
+{
+    return until_blocked_time;
+}
+
 void Process::update_wait_time(int64_t t) noexcept
 {
     wait_time = creation_time - t;
+}
+
+void Process::update_until_blocked_time() noexcept
+{
+    until_blocked_time = 0;
 }
 
 void Process::update_creation_time(int64_t t) noexcept

@@ -29,6 +29,7 @@ private:
     //layouts
     QVBoxLayout layout;
     QHBoxLayout processes_layout;
+    QVBoxLayout tittle;
     QHBoxLayout processes_tittle_layout;
     QHBoxLayout report_layout;
     QHBoxLayout buttons_layout;
@@ -41,6 +42,9 @@ private:
     QVBoxLayout waited_layout;
     QVBoxLayout execute_layout;
     QVBoxLayout blocked_t_layout;
+
+    //title
+    QLabel *title = new QLabel("title");
 
     //Lists
     QListWidget process;
@@ -62,7 +66,6 @@ private:
     QLabel *average_waited_time_t = new QLabel("Average Waited Time: ");
     QLabel *average_executed_time_t = new QLabel("Average Executed Time: ");
     QLabel *average_blocked_time_t = new QLabel("average blocked time");
-
 
     //labels for reports
     QLabel *total_time = new QLabel("Time: ");
