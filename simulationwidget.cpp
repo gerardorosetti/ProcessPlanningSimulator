@@ -5,42 +5,58 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
 {
     GlobalVariables::going = true;
     Process::counter = 1;
+
     //Creation of Algorithm
     switch (type)
     {
         case AlgorithmType::FCFS:
             algorithm = std::make_shared<FirstComeFirstServed>();
-            has_blocked_list = false;
             break;
         case AlgorithmType::RS:
             algorithm = std::make_shared<RandomSelection>();
-            has_blocked_list = false;
             break;
         case AlgorithmType::SJF:
             algorithm = std::make_shared<ShortestJobFirst>();
-            has_blocked_list = false;
             break;
         case AlgorithmType::PNE:
             algorithm = std::make_shared<PrioritySelectionNonExpulsive>();
-            has_blocked_list = false;
             break;
         case AlgorithmType::RR:
             algorithm = std::make_shared<RoundRobin>();
-            has_blocked_list = true;
             break;
         case AlgorithmType::SRTF:
             algorithm = std::make_shared<ShortestRemainingTimeFirst>();
-            has_blocked_list = true;
             break;
         case AlgorithmType::PE:
             algorithm = std::make_shared<PrioritySelectionExpulsive>();
-            has_blocked_list = true;
             break;
         default:
             break;
     }
 
     this->setLayout(&layout);
+
+    QWidget *containerWidget = new QWidget;
+    containerWidget->setFixedSize(800, 50);
+    containerWidget->setLayout(&processes_tittle_layout);
+
+    QLabel *ready = new QLabel("Ready");
+    ready->setStyleSheet("font-size: 20px; color: rgba(0, 51, 102, 0.8); font-weight: bold;");
+    processes_tittle_layout.addWidget(ready);
+
+    QLabel *cpu = new QLabel("CPU");
+    cpu->setStyleSheet("font-size: 20px; color: rgba(85, 107, 47, 0.8); font-weight: bold;");
+    processes_tittle_layout.addWidget(cpu);
+
+    QLabel *compleated = new QLabel("Compleated");
+    compleated->setStyleSheet("font-size: 20px; color: rgba(0, 100, 0, 0.8); font-weight: bold;");
+    processes_tittle_layout.addWidget(compleated);
+
+    QLabel *blocked = new QLabel("Blocked");
+    blocked->setStyleSheet("font-size: 20px; color: rgba(139, 0, 0, 0.8); font-weight: bold;");
+    processes_tittle_layout.addWidget(blocked);
+
+    layout.addWidget(containerWidget);
 
     processes_list.setFixedSize(200, 300);
     processes_list.setStyleSheet(
@@ -128,6 +144,7 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
             "background: none;"
         "}"
     );
+
     processes_layout.addWidget(&current_list, 0, Qt::AlignTop);
     compleated_list.setFixedSize(200, 300);
     compleated_list.setStyleSheet(
@@ -177,10 +194,8 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
 
     processes_layout.addWidget(&compleated_list, 0, Qt::AlignCenter);
 
-    if (has_blocked_list)
-    {
-        blocked_list.setFixedSize(200, 300);
-        blocked_list.setStyleSheet(
+    blocked_list.setFixedSize(200, 300);
+    blocked_list.setStyleSheet(
         "QListWidget {"
             "background-color: #ABB4B4;" 
             "border: 2px solid #8b0000;" 
@@ -224,45 +239,11 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
             "background: none;"
         "}"
         );
-        processes_layout.addWidget(&blocked_list, 0, Qt::AlignCenter);
-    }
+    processes_layout.addWidget(&blocked_list, 0, Qt::AlignCenter);
 
     layout.addLayout(&processes_layout);
 
-    time_layout.addWidget(total_time_t);
-    time_layout.addWidget(total_time);
-
-    cpu_layout.addWidget(CPU_usage_t);
-    cpu_layout.addWidget(CPU_usage);
-
-    created_layout.addWidget(total_process_created_t);
-    created_layout.addWidget(total_process_created);
-
-    compleated_layout.addWidget(total_process_compleated_t);
-    compleated_layout.addWidget(total_process_compleated);
-
-    blocked_layout.addWidget(total_process_blocked_t);
-    blocked_layout.addWidget(total_process_blocked);
-
-    waited_layout.addWidget(average_waited_time_t);
-    waited_layout.addWidget(average_waited_time);
-
-    execute_layout.addWidget(average_executed_time_t);
-    execute_layout.addWidget(average_executed_time);
-
-    blocked_t_layout.addWidget(average_blocked_time_t);
-    blocked_t_layout.addWidget(average_blocked_time);
-
-    report_layout.addLayout(&time_layout);
-    report_layout.addLayout(&cpu_layout);
-    report_layout.addLayout(&created_layout);
-    report_layout.addLayout(&compleated_layout);
-    report_layout.addLayout(&blocked_layout);
-    report_layout.addLayout(&waited_layout);
-    report_layout.addLayout(&execute_layout);
-    report_layout.addLayout(&blocked_t_layout);
-
-    //layout.addLayout(&report_layout);
+    layout.addLayout(&report_layout);
 
     button_stop.setFixedSize(250, 50);
     button_stop.setText("Stop Simulation");
@@ -277,8 +258,9 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
     connect(&button_close, SIGNAL(clicked(bool)), this, SLOT(on_button_close_pressed()));
     connect(&button_stop, SIGNAL(clicked(bool)), this, SLOT(on_button_stop_pressed()));
 
+    start_point = std::chrono::high_resolution_clock::now();
     create_threads();
-    GlobalVariables::total_time = std::chrono::system_clock::now().time_since_epoch().count();
+
 }
 
 void SimulationWidget::sleep_for(ulong time)
@@ -301,7 +283,8 @@ void SimulationWidget::sleep_for(ulong time)
 void SimulationWidget::create_threads()
 {
 
-    auto pred = [this] () {
+    auto pred = [this] ()
+    {
         algorithm->process_algorithm();
     };
     processes = std::thread{pred};
@@ -311,15 +294,14 @@ void SimulationWidget::create_threads()
     ConcurrentQueue& processes_queue = algorithm->get_process_queue();
     ConcurrentQueue& blocked_queue = algorithm->get_blocked_queue();
 
-    auto process_creation = [this, &processes_queue] ()  {
+    auto process_creation = [this, &processes_queue] ()
+    {
+        sleep_for(1000);
         std::random_device rd;
         std::mt19937 gen(rd());
         Process::counter = 1;
         std::exponential_distribution<double> exp_dist(1.0 / GlobalVariables::lambda);
-
-        //sleep_for(250);
         Process random_process = Process::build_random_process(gen);
-        //sleep_for(250);
         while(GlobalVariables::going)
         {
             std::stringstream ss;
@@ -388,7 +370,17 @@ void SimulationWidget::create_threads()
                     }
                 }
             }
-            if(current.get_status() == STATUS::BLOCKED && waiting && has_blocked_list)
+
+            if(current.get_status() == STATUS::READY && waiting)
+            {
+                waiting = false;
+                current_list.removeItemWidget(current_list.takeItem(0));
+                QListWidgetItem* newItem = new QListWidgetItem(QStr);
+                newItem->setTextAlignment(Qt::AlignHCenter);
+                processes_list.addItem(newItem);
+            }
+
+            if(current.get_status() == STATUS::BLOCKED && waiting)
             {
                 waiting = false;
                 current_list.removeItemWidget(current_list.takeItem(0));
@@ -399,49 +391,42 @@ void SimulationWidget::create_threads()
         }
     };
     modify_lists = std::thread(mod);
-    if (has_blocked_list)
+
+    auto blocked = [this, &processes_queue, &blocked_queue] ()
     {
-
-        auto blocked = [this, &processes_queue, &blocked_queue] ()
-        {           
-            std::random_device rd;
-            std::mt19937 gen(rd());
-            std::uniform_int_distribution<size_t> time_dist(1000, 3000);
-            while(GlobalVariables::going)
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<size_t> time_dist(1000, 3000);
+        while(GlobalVariables::going)
+        {
+            if(!blocked_queue.empty())
             {
-                if(!blocked_queue.empty())
-                {
-                    Process curr = blocked_queue.pop();
-                    size_t random_time = time_dist(gen);
-                    sleep_for(random_time);
-                    GlobalVariables::total_blocked_time += random_time;
-                    ++GlobalVariables::total_processes_blocked;
-
-                    blocked_list.removeItemWidget(blocked_list.takeItem(0));
-                    std::stringstream ss;
-                    ss << "Process ID: " << curr.get_id();
-                    QListWidgetItem* newItem = new QListWidgetItem(QString::fromStdString(ss.str()));
-                    newItem->setTextAlignment(Qt::AlignHCenter);
-                    processes_list.addItem(newItem);
-                    curr.update_status(STATUS::READY);
-                    curr.update_creation_time(std::chrono::system_clock::now().time_since_epoch().count());
-                    processes_queue.push(curr);
-                }
+                Process curr = blocked_queue.pop();
+                size_t random_time = time_dist(gen);
+                sleep_for(random_time);
+                GlobalVariables::total_blocked_time += random_time;
+                ++GlobalVariables::total_processes_blocked;
+                blocked_list.removeItemWidget(blocked_list.takeItem(0));
+                std::stringstream ss;
+                ss << "Process ID: " << curr.get_id();
+                QListWidgetItem* newItem = new QListWidgetItem(QString::fromStdString(ss.str()));
+                newItem->setTextAlignment(Qt::AlignHCenter);
+                processes_list.addItem(newItem);
+                curr.update_status(STATUS::READY);
+                curr.update_creation_time(std::chrono::system_clock::now().time_since_epoch().count());
+                processes_queue.push(curr);
             }
-        };
+        }
+    };
+    blocked_thread = std::thread(blocked);
 
-        blocked_thread = std::thread(blocked);
-    }
 }
 
 void SimulationWidget::on_button_close_pressed()
 {
     GlobalVariables::going = false;
     simulation_closed = true;
-    if (has_blocked_list)
-    {
-        blocked_thread.join();
-    }
+    blocked_thread.join();
     processes_creator.join();
     processes.join();
     modify_lists.join();
@@ -453,8 +438,47 @@ void SimulationWidget::on_button_close_pressed()
 
 void SimulationWidget::on_button_stop_pressed()
 {
+    if(GlobalVariables::going)
+    {
+        end_point = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsed_time = end_point - start_point;
+        GlobalVariables::total_time = elapsed_time.count();
+    }
     GlobalVariables::going = false;
     GlobalVariables::update();
+
+    time_layout.addWidget(total_time_t);
+    time_layout.addWidget(total_time);
+
+    cpu_layout.addWidget(CPU_usage_t);
+    cpu_layout.addWidget(CPU_usage);
+
+    created_layout.addWidget(total_process_created_t);
+    created_layout.addWidget(total_process_created);
+
+    compleated_layout.addWidget(total_process_compleated_t);
+    compleated_layout.addWidget(total_process_compleated);
+
+    blocked_layout.addWidget(total_process_blocked_t);
+    blocked_layout.addWidget(total_process_blocked);
+
+    waited_layout.addWidget(average_waited_time_t);
+    waited_layout.addWidget(average_waited_time);
+
+    execute_layout.addWidget(average_executed_time_t);
+    execute_layout.addWidget(average_executed_time);
+
+    blocked_t_layout.addWidget(average_blocked_time_t);
+    blocked_t_layout.addWidget(average_blocked_time);
+
+    report_layout.addLayout(&time_layout);
+    report_layout.addLayout(&cpu_layout);
+    report_layout.addLayout(&created_layout);
+    report_layout.addLayout(&compleated_layout);
+    report_layout.addLayout(&blocked_layout);
+    report_layout.addLayout(&waited_layout);
+    report_layout.addLayout(&execute_layout);
+    report_layout.addLayout(&blocked_t_layout);
 
     total_time->setText(QString::number(GlobalVariables::total_time));
     CPU_usage->setText(QString::number(GlobalVariables::CPU_usage));
@@ -464,7 +488,6 @@ void SimulationWidget::on_button_stop_pressed()
     average_waited_time->setText(QString::number(GlobalVariables::average_waited_time));
     average_executed_time->setText(QString::number(GlobalVariables::average_executed_time));
     average_blocked_time->setText(QString::number(GlobalVariables::average_blocked_time));
-    layout.addLayout(&report_layout);
 }
 
 SimulationWidget::~SimulationWidget()
@@ -475,10 +498,7 @@ SimulationWidget::~SimulationWidget()
         processes_creator.join();
         processes.join();
         modify_lists.join();
-        if (has_blocked_list)
-        {
-            blocked_thread.join();
-        }
+        blocked_thread.join();
     }
     GlobalVariables::reset();
 }

@@ -1,3 +1,7 @@
+/*
+    2024
+    This file contains the declaration of the class Process.
+*/
 #ifndef PROCESS_HPP
 #define PROCESS_HPP
 

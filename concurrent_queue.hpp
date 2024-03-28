@@ -1,3 +1,8 @@
+/*
+    2024
+    This file contains the declaration and definition of the class ConcurrentQueue.
+    whit a QueueInterface for a VectorAdapter, QueueAdapter, HeapAdapter
+*/
 #ifndef CONCURRENT_QUEUE_HPP
 #define CONCURRENT_QUEUE_HPP
 

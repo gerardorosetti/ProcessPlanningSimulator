@@ -1,3 +1,7 @@
+/*
+    2024
+    This file contains the declaration of the class GlobalVariables.
+*/
 #ifndef GLOBALVARIABLES_HPP
 #define GLOBALVARIABLES_HPP
 
@@ -8,7 +12,7 @@ class GlobalVariables
 {
 public:
     static bool going;
-    static uint64_t total_time; //easy peace
+    static double total_time; //easy peace
     static uint64_t total_waited_time;//done pending for checking
     static uint64_t average_waited_time;//done
     static uint64_t total_executed_time;//done

@@ -1,7 +1,12 @@
+/*
+    2024
+    This file contains the definition of the class GlobalVariables.
+*/
+
 #include "globalvariables.hpp"
 
 bool GlobalVariables::going = true;
-uint64_t GlobalVariables::total_time = 0;
+double GlobalVariables::total_time;
 uint64_t GlobalVariables::total_waited_time = 0;
 uint64_t GlobalVariables::average_waited_time = 0;
 uint64_t GlobalVariables::total_executed_time = 0;
@@ -33,7 +38,6 @@ void GlobalVariables::reset()
 }
 void GlobalVariables::update()
 {
-    GlobalVariables::total_time = std::chrono::system_clock::now().time_since_epoch().count() - GlobalVariables::total_time;
     if(GlobalVariables::total_processes_blocked == 0)
     {
         GlobalVariables::average_blocked_time = 0;
@@ -50,5 +54,5 @@ void GlobalVariables::update()
         GlobalVariables::average_executed_time = GlobalVariables::total_executed_time/GlobalVariables::total_processes_compleated;
         GlobalVariables::average_waited_time = GlobalVariables::total_waited_time/GlobalVariables::total_processes_compleated;
     }
-    GlobalVariables::CPU_usage = 100*(static_cast<double>(GlobalVariables::total_executed_time)/static_cast<double>(GlobalVariables::total_time));
+    GlobalVariables::CPU_usage = 100*(static_cast<double>(GlobalVariables::total_executed_time)/(GlobalVariables::total_time));
 }

@@ -1,3 +1,8 @@
+/*
+    2024
+    This file contains the definition of the class Algorithm.
+*/
+
 #include "algorithms.hpp"
 
 Algorithm::Algorithm(std::shared_ptr<QueueInterface> adapter) noexcept
@@ -191,9 +196,9 @@ void PrioritySelectionExpulsive::process_algorithm(/*bool GlobalVariables::going
 
                         GlobalVariables::total_executed_time += delta;
 
-                        current_process.update_status(STATUS::BLOCKED);
+                        current_process.update_status(STATUS::READY);
                         current_process.update_time(delta);
-                        blocked_queue.push(current_process);
+                        process_queue.push(current_process);
                         break;
                     }
                 }
@@ -226,9 +231,9 @@ void RoundRobin::process_algorithm(/*bool GlobalVariables::going*/)
 
                 GlobalVariables::total_executed_time += quantum;
 
-                current_process.update_status(STATUS::BLOCKED);
+                current_process.update_status(STATUS::READY);
                 current_process.update_time(current_process.get_time() - quantum);
-                blocked_queue.push(current_process);
+                process_queue.push(current_process);
             }else
             {
                 sleep_for(current_process.get_time());
@@ -288,9 +293,9 @@ void ShortestRemainingTimeFirst::process_algorithm(/*bool GlobalVariables::going
 
                         GlobalVariables::total_executed_time += delta;
 
-                        current_process.update_status(STATUS::BLOCKED);
+                        current_process.update_status(STATUS::READY);
                         current_process.update_time(delta);
-                        blocked_queue.push(current_process);
+                        process_queue.push(current_process);
                         break;
                     }
                 }

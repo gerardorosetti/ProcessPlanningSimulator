@@ -24,6 +24,7 @@ private:
     //layouts
     QVBoxLayout layout;
     QHBoxLayout processes_layout;
+    QHBoxLayout processes_tittle_layout;
     QHBoxLayout report_layout;
     QHBoxLayout buttons_layout;
 
@@ -48,7 +49,7 @@ private:
     QPushButton button_stop;
 
     //labels for tittle report
-    QLabel *total_time_t = new QLabel("Total Time: ");
+    QLabel *total_time_t = new QLabel("Time: ");
     QLabel *CPU_usage_t = new QLabel("CPU usage");
     QLabel *total_process_created_t = new QLabel("Process Created: ");
     QLabel *total_process_compleated_t = new QLabel("Process Compleated: ");
@@ -59,14 +60,14 @@ private:
 
 
     //labels for reports
-    QLabel *total_time = new QLabel("Total Time: ");
+    QLabel *total_time = new QLabel("Time: ");
     QLabel *CPU_usage = new QLabel("CPU usage");
     QLabel *total_process_created = new QLabel("Process Created: ");
     QLabel *total_process_compleated = new QLabel("Process Compleated: ");
     QLabel *total_process_blocked = new QLabel("Process Blocked: ");
     QLabel *average_waited_time = new QLabel("Average Waited Time: ");
     QLabel *average_executed_time = new QLabel("Average Executed Time: ");
-    QLabel *average_blocked_time = new QLabel("average blocked time");
+    QLabel *average_blocked_time = new QLabel("Average blocked time");
 
     //algorithm
     std::shared_ptr<Algorithm> algorithm;
@@ -78,7 +79,9 @@ private:
     std::thread blocked_thread;
 
     bool simulation_closed{false};
-    bool has_blocked_list;
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_point;
+    std::chrono::time_point<std::chrono::high_resolution_clock> end_point;
 
     void sleep_for(ulong);
 

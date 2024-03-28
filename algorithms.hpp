@@ -1,3 +1,7 @@
+/*
+    2024
+    This file contains the declaration of the class Algorithm.
+*/
 #ifndef ALGORITHMS_HPP
 #define ALGORITHMS_HPP
 
