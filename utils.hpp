@@ -1,9 +1,10 @@
 /*
     2024
     This file contains the declaration of the class GlobalVariables.
+    This file contains the declaration of the sleep for method
 */
-#ifndef GLOBALVARIABLES_HPP
-#define GLOBALVARIABLES_HPP
+#ifndef UTILS_HPP
+#define UTILS_HPP
 
 #include <iostream>
 #include <thread>
@@ -31,4 +32,5 @@ public:
 
 //sleep_for based on the tick picked
 void sleep_for(int64_t time);
-#endif // GLOBALVARIABLES_HPP
+
+#endif // UTILS_HPP

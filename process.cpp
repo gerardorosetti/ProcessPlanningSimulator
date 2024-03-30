@@ -8,12 +8,12 @@ long Process::counter = 0;
 
 Process Process::build_random_process(std::mt19937& gen) noexcept
 {
-    std::uniform_int_distribution<size_t> time1_dist(1000,2800);
-    std::uniform_int_distribution<size_t> time2_dist(100, 800);
-    std::uniform_int_distribution<size_t> priority_dist(1, 10);
+    std::uniform_int_distribution<int64_t> time1_dist(1000,2800);
+    std::uniform_int_distribution<int64_t> time2_dist(100, 800);
+    std::uniform_int_distribution<size_t> priority_dist(1, 9);
     std::uniform_int_distribution<int> blocked_dist(0, 100);
 
-    size_t random_until_blocked_time = 0;
+    int64_t random_until_blocked_time = 0;
 
     if(blocked_dist(gen) < 30)
     {
@@ -21,8 +21,8 @@ Process Process::build_random_process(std::mt19937& gen) noexcept
         random_until_blocked_time = time2_dist(gen);
     }
 
-    size_t random_burst_time = time1_dist(gen);
-    size_t random_io_burst_time = time2_dist(gen);
+    int64_t random_burst_time = time1_dist(gen);
+    int64_t random_io_burst_time = time2_dist(gen);
 
     size_t random_priority = priority_dist(gen);
 

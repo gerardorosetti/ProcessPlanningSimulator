@@ -6,7 +6,7 @@
 #include <algorithms.hpp>
 
 Algorithm::Algorithm(std::shared_ptr<QueueInterface> adapter) noexcept
-    : process_queue{adapter}, blocked_queue{std::make_shared<QueueAdapter>()}
+    : process_queue{adapter}, blocked_queue{std::make_shared<QueueAdapter>()}, completed_process{std::make_shared<QueueAdapter>()}
 {}
 ConcurrentQueue& Algorithm::get_process_queue()
 {
@@ -18,28 +18,14 @@ ConcurrentQueue& Algorithm::get_blocked_queue()
     return blocked_queue;
 }
 
+ConcurrentQueue& Algorithm::get_completed_process()
+{
+    return completed_process;
+}
+
 const Process& Algorithm::get_current_process()
 {
     return current_process;
-}
-
-
-//sleep_for based on the tick picked
-void sleep_for(ulong time)
-{
-    auto tp1 = std::chrono::high_resolution_clock::now();
-    uint64_t time_counter = 0;
-    while(GlobalVariables::going)
-    {
-        auto tp2 = std::chrono::high_resolution_clock::now();
-        time_counter += std::chrono::duration_cast<std::chrono::milliseconds>(tp2 - tp1).count();
-        if(time_counter >= time)
-        {
-            break;
-        }
-        tp1 = tp2;
-        std::this_thread::sleep_for(std::chrono::milliseconds(GlobalVariables::tick));
-    }
 }
 
 //Comparator for the heap adapter, based on the time that the process have
@@ -60,9 +46,14 @@ struct PRIORITY_CMP
     }
 };
 
-
-//Non-expulsive Algorithms
-
+/*
+    Non-expulsive Algorithms works the same, depends of the kind of QueueInterface
+        1- Pop the process at the top of the queue
+        2- Check if the process its mean to be blocked,
+            3-if it is we send it to the blocked queue
+            3-if it is not we process it normally
+        At the same time this is happening we updates some variables of GlobalVariables
+*/
 FirstComeFirstServed::FirstComeFirstServed()
     : Algorithm{std::make_shared<QueueAdapter>()}{}
 
@@ -89,8 +80,7 @@ void FirstComeFirstServed::process_algorithm()
                 current_process.update_status(STATUS::BLOCKED);
                 current_process.update_until_blocked_time();
 
-                blocked_queue.push(current_process);
-            }
+                blocked_queue.push(current_process);            }
             else
             {
                 GlobalVariables::total_waited_time += current_process.get_wait_time();
@@ -98,8 +88,11 @@ void FirstComeFirstServed::process_algorithm()
                 current_process.update_status(STATUS::IN_EXECUTION);
                 sleep_for(current_process.get_time());
 
-                GlobalVariables::total_executed_time += current_process.get_time();
 
+                GlobalVariables::total_executed_time += current_process.get_time();
+                ++GlobalVariables::total_processes_compleated;
+
+                completed_process.push(current_process);
                 current_process.update_status(STATUS::COMPLETED);
             }
         }
@@ -142,7 +135,9 @@ void ShortestJobFirst::process_algorithm()
                 sleep_for(current_process.get_time());
 
                 GlobalVariables::total_executed_time += current_process.get_time();
+                ++GlobalVariables::total_processes_compleated;
 
+                completed_process.push(current_process);
                 current_process.update_status(STATUS::COMPLETED);
             }
         }
@@ -186,7 +181,9 @@ void RandomSelection::process_algorithm()
                 sleep_for(current_process.get_time());
 
                 GlobalVariables::total_executed_time += current_process.get_time();
+                ++GlobalVariables::total_processes_compleated;
 
+                completed_process.push(current_process);
                 current_process.update_status(STATUS::COMPLETED);
             }
         }
@@ -229,7 +226,9 @@ void PrioritySelectionNonExpulsive::process_algorithm()
                 sleep_for(current_process.get_time());
 
                 GlobalVariables::total_executed_time += current_process.get_time();
+                ++GlobalVariables::total_processes_compleated;
 
+                completed_process.push(current_process);
                 current_process.update_status(STATUS::COMPLETED);
             }
         }
@@ -238,65 +237,19 @@ void PrioritySelectionNonExpulsive::process_algorithm()
 
 // Expulsive Algorithms
 
-PrioritySelectionExpulsive::PrioritySelectionExpulsive()
-    : Algorithm{std::make_shared<HeapAdapter<PRIORITY_CMP>>()}{}
-
-void PrioritySelectionExpulsive::process_algorithm()
-{
-    while(GlobalVariables::going)
-    {
-        if(!process_queue.empty())
-        {
-            current_process = process_queue.pop();
-            current_process.update_wait_time(std::chrono::system_clock::now().time_since_epoch().count());
-
-            GlobalVariables::total_waited_time += current_process.get_wait_time();
-
-            current_process.update_status(STATUS::IN_EXECUTION);
-            auto tp1 = std::chrono::high_resolution_clock::now();
-            uint64_t time_counter = 0, delta = 0;
-            auto process_time_duration = current_process.get_time();
-            auto process_priority = current_process.get_priority();
-
-            while(GlobalVariables::going)
-            {
-                delta = process_time_duration - time_counter;
-                auto tp2 = std::chrono::high_resolution_clock::now();
-                time_counter += std::chrono::duration_cast<std::chrono::milliseconds>(tp2 - tp1).count();
-                if(time_counter >= process_time_duration)
-                {
-                    current_process.update_status(STATUS::COMPLETED);
-
-                    GlobalVariables::total_executed_time += current_process.get_time();
-
-                    break;
-                }
-                if (!process_queue.empty())
-                {
-                    if(process_queue.top().get_priority() < process_priority)
-                    {
-
-                        GlobalVariables::total_executed_time += time_counter;
-
-                        current_process.update_status(STATUS::READY);
-                        current_process.update_time(delta);
-                        process_queue.push(current_process);
-                        break;
-                    }
-                }
-                tp1 = tp2;
-                std::this_thread::sleep_for(std::chrono::milliseconds(GlobalVariables::tick));
-            }
-        }
-    }
-}
-
+/*
+    The Round Robin Algorithm works the following way
+        A "Quantum" its defined each process can acces the "CPU" the time of the quantum
+        if it doesnt end in this time, will be expulsed and send back to the process queue
+        if it does will end
+    At the same time this is happening we updates some variables of GlobalVariables
+*/
 RoundRobin::RoundRobin()
     : Algorithm{std::make_shared<QueueAdapter>()}{}
 
 void RoundRobin::process_algorithm()
 {
-    size_t quantum = 2000;
+    int64_t quantum = 2000;
     while(GlobalVariables::going)
     {
         if(!process_queue.empty())
@@ -304,7 +257,6 @@ void RoundRobin::process_algorithm()
             current_process = process_queue.pop();
             current_process.update_wait_time(std::chrono::system_clock::now().time_since_epoch().count());
             int64_t until_blocked = current_process.get_until_blocked_time();
-            int64_t time = current_process.get_time();
 
             GlobalVariables::total_waited_time += current_process.get_wait_time();
 
@@ -334,8 +286,92 @@ void RoundRobin::process_algorithm()
                     sleep_for(current_process.get_time());
 
                     GlobalVariables::total_executed_time += current_process.get_time();
+                    ++GlobalVariables::total_processes_compleated;
 
+                    completed_process.push(current_process);
                     current_process.update_status(STATUS::COMPLETED);
+                }
+            }
+        }
+    }
+}
+/*
+    Priority Selection Expulsive and Shortest Remaining Time First works the same their differences remains in the
+    Comparator for arrange their Heap
+    This algorithms works
+        Pop the process at the top of the queue, after that we constantly check is a new process in the queue
+        should be prioritized and expulse the current process, if it is none new process should be prioritized
+        will end its procesing eventually
+    At the same time this is happening we updates some variables of GlobalVariables
+*/
+
+PrioritySelectionExpulsive::PrioritySelectionExpulsive()
+    : Algorithm{std::make_shared<HeapAdapter<PRIORITY_CMP>>()}{}
+
+void PrioritySelectionExpulsive::process_algorithm()
+{
+    while(GlobalVariables::going)
+    {
+        if(!process_queue.empty())
+        {
+            current_process = process_queue.pop();
+            current_process.update_wait_time(std::chrono::system_clock::now().time_since_epoch().count());
+
+            GlobalVariables::total_waited_time += current_process.get_wait_time();
+
+            current_process.update_status(STATUS::IN_EXECUTION);
+            int64_t until_blocked = get_current_process().get_until_blocked_time();
+
+            if(current_process.get_until_blocked_time())
+            {
+                sleep_for(until_blocked);
+
+                current_process.update_time(current_process.get_time() - until_blocked);
+                GlobalVariables::total_executed_time += until_blocked;
+
+                current_process.update_status(STATUS::BLOCKED);
+                current_process.update_until_blocked_time();
+
+                blocked_queue.push(current_process);
+            }
+            else
+            {
+                auto tp1 = std::chrono::high_resolution_clock::now();
+                uint64_t time_counter = 0, delta = 0;
+                auto process_time_duration = current_process.get_time();
+                auto process_priority = current_process.get_priority();
+
+                while(GlobalVariables::going)
+                {
+                    delta = process_time_duration - time_counter;
+                    auto tp2 = std::chrono::high_resolution_clock::now();
+                    time_counter += std::chrono::duration_cast<std::chrono::milliseconds>(tp2 - tp1).count();
+                    if(time_counter >= process_time_duration)
+                    {
+                        ++GlobalVariables::total_processes_compleated;
+
+                        completed_process.push(current_process);
+                        current_process.update_status(STATUS::COMPLETED);
+
+                        GlobalVariables::total_executed_time += current_process.get_time();
+
+                        break;
+                    }
+                    if (!process_queue.empty())
+                    {
+                        if(process_queue.top().get_priority() < process_priority)
+                        {
+
+                            GlobalVariables::total_executed_time += time_counter;
+
+                            current_process.update_status(STATUS::READY);
+                            current_process.update_time(delta);
+                            process_queue.push(current_process);
+                            break;
+                        }
+                    }
+                    tp1 = tp2;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(GlobalVariables::tick));
                 }
             }
         }
@@ -357,36 +393,54 @@ void ShortestRemainingTimeFirst::process_algorithm()
             GlobalVariables::total_waited_time += current_process.get_wait_time();
 
             current_process.update_status(STATUS::IN_EXECUTION);
-            auto tp1 = std::chrono::high_resolution_clock::now();
-            uint64_t time_counter = 0, delta = 0;
-            auto process_time_duration = current_process.get_time();
-            while(GlobalVariables::going)
+            int64_t until_blocked = current_process.get_until_blocked_time();
+            if(until_blocked)
             {
-                delta = process_time_duration - time_counter;
-                auto tp2 = std::chrono::high_resolution_clock::now();
-                time_counter += std::chrono::duration_cast<std::chrono::milliseconds>(tp2 - tp1).count();
-                if(time_counter >= process_time_duration)
-                {
+                sleep_for(until_blocked);
 
-                    GlobalVariables::total_executed_time += current_process.get_time();
+                current_process.update_time(current_process.get_time() - until_blocked);
+                GlobalVariables::total_executed_time += until_blocked;
 
-                    current_process.update_status(STATUS::COMPLETED);
-                    break;
-                }
-                if (!process_queue.empty())
+                current_process.update_status(STATUS::BLOCKED);
+                current_process.update_until_blocked_time();
+
+                blocked_queue.push(current_process);
+            }
+            else
+            {
+                auto tp1 = std::chrono::high_resolution_clock::now();
+                uint64_t time_counter = 0, delta = 0;
+                auto process_time_duration = current_process.get_time();
+                while(GlobalVariables::going)
                 {
-                    if(process_queue.top().get_time() < delta)
+                    delta = process_time_duration - time_counter;
+                    auto tp2 = std::chrono::high_resolution_clock::now();
+                    time_counter += std::chrono::duration_cast<std::chrono::milliseconds>(tp2 - tp1).count();
+                    if(time_counter >= process_time_duration)
                     {
-                        GlobalVariables::total_executed_time += time_counter;
 
-                        current_process.update_status(STATUS::READY);
-                        current_process.update_time(delta);
-                        process_queue.push(current_process);
+                        GlobalVariables::total_executed_time += current_process.get_time();
+                        ++GlobalVariables::total_processes_compleated;
+
+                        completed_process.push(current_process);
+                        current_process.update_status(STATUS::COMPLETED);
                         break;
                     }
+                    if (!process_queue.empty())
+                    {
+                        if(process_queue.top().get_time() < delta)
+                        {
+                            GlobalVariables::total_executed_time += time_counter;
+
+                            current_process.update_status(STATUS::READY);
+                            current_process.update_time(delta);
+                            process_queue.push(current_process);
+                            break;
+                        }
+                    }
+                    tp1 = tp2;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(GlobalVariables::tick));
                 }
-                tp1 = tp2;
-                std::this_thread::sleep_for(std::chrono::milliseconds(GlobalVariables::tick));
             }
         }
     }

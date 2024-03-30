@@ -9,16 +9,16 @@
 #include <random>
 #include <vector>
 #include <chrono>
-#include <globalvariables.hpp>
+#include <utils.hpp>
 
+//Posible Status of the process
 enum STATUS
 {
     CREATED,
     READY,
     IN_EXECUTION,
     BLOCKED,
-    COMPLETED,
-    FAILED
+    COMPLETED
 };
 
 class Process
@@ -54,7 +54,6 @@ private:
     int64_t wait_time;
     size_t priority;
     STATUS status;
-    bool blocked;
 };
 
 #endif // PROCESS_HPP

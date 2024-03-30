@@ -16,6 +16,7 @@
 #include <sstream>
 #include <QLabel>
 #include <unordered_set>
+#include <string>
 
 class SimulationWidget : public QWidget
 {
@@ -23,14 +24,15 @@ class SimulationWidget : public QWidget
 public:
     explicit SimulationWidget(AlgorithmType, QWidget *parent = nullptr);
     void create_threads();
+    void style_layouts();
     ~SimulationWidget();
 
 private:
     //layouts
     QVBoxLayout layout;
     QHBoxLayout processes_layout;
-    QVBoxLayout tittle;
-    QHBoxLayout processes_tittle_layout;
+    QVBoxLayout title;
+    QHBoxLayout processes_title_layout;
     QHBoxLayout report_layout;
     QHBoxLayout buttons_layout;
 
@@ -44,10 +46,9 @@ private:
     QVBoxLayout blocked_t_layout;
 
     //title
-    QLabel *title = new QLabel("title");
+    QLabel *title_l = new QLabel("title");
 
     //Lists
-    QListWidget process;
     QListWidget processes_list;
     QListWidget current_list;
     QListWidget compleated_list;
@@ -58,14 +59,14 @@ private:
     QPushButton button_stop;
 
     //labels for tittle report
-    QLabel *total_time_t = new QLabel("Time: ");
-    QLabel *CPU_usage_t = new QLabel("CPU usage");
+    QLabel *total_time_t = new QLabel("Time(ms): ");
+    QLabel *CPU_usage_t = new QLabel("CPU usage(%): ");
     QLabel *total_process_created_t = new QLabel("Process Created: ");
     QLabel *total_process_compleated_t = new QLabel("Process Compleated: ");
     QLabel *total_process_blocked_t = new QLabel("Process Blocked: ");
     QLabel *average_waited_time_t = new QLabel("Average Waited Time: ");
     QLabel *average_executed_time_t = new QLabel("Average Executed Time: ");
-    QLabel *average_blocked_time_t = new QLabel("average blocked time");
+    QLabel *average_blocked_time_t = new QLabel("Average blocked time");
 
     //labels for reports
     QLabel *total_time = new QLabel("Time: ");
@@ -83,16 +84,16 @@ private:
     //threads
     std::thread processes;
     std::thread processes_creator;
-    std::thread modify_lists;
+    std::thread modify_process_list;
+    std::thread modify_current_list;
+    std::thread modify_completed_list;
+    std::thread modify_blocked_list;
     std::thread blocked_thread;
 
     bool simulation_closed{false};
 
     std::chrono::time_point<std::chrono::high_resolution_clock> start_point;//start time point of the simulation
     std::chrono::time_point<std::chrono::high_resolution_clock> end_point;//end time point of the simulation
-
-    void sleep_for(ulong);
-
 private slots:
     void on_button_close_pressed();
     void on_button_stop_pressed();

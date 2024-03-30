@@ -12,19 +12,19 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     algorithms.hpp \
     concurrent_queue.hpp \
-    globalvariables.hpp \
     mainwidget.hpp \
     menuwidget.hpp \
     process.hpp \
     simulationwidget.hpp \
-    titlewidget.hpp
+    titlewidget.hpp \
+    utils.hpp
 
 SOURCES += \
     algorithms.cpp \
-    globalvariables.cpp \
     main.cpp \
     mainwidget.cpp \
     menuwidget.cpp \
     process.cpp \
     simulationwidget.cpp \
-    titlewidget.cpp
+    titlewidget.cpp \
+    utils.cpp

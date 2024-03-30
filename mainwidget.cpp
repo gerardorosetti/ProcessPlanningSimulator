@@ -7,8 +7,8 @@
 MainWidget::MainWidget(QWidget *parent)
     : QWidget{parent}
 {
+    this->resize(1000,500);
     this->setLayout(&layout);
-
     title_widget = new TitleWidget{this};
     this->setWindowTitle("PROCESS PLANNING SIMULATOR");
     layout.addWidget(title_widget);

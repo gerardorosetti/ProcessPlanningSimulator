@@ -17,7 +17,8 @@
 #include <cstdlib>
 #include <ctime>
 
-enum AlgorithmType{
+enum AlgorithmType
+{
     FCFS,
     RS,
     SJF,
@@ -30,22 +31,26 @@ class Algorithm
 {
 public:
     /*
-        It receives a Queue interface, the type of queue will depend on the kind of algorithm
-        we overwrite the process_algorithm method depending of the algorithm
-        getters for the atributes
+        -It receives a Queue interface, the type of queue will depend on the kind of algorithm
+        -We overwrite the process_algorithm method depending of the algorithm
+        -Getters for the atributes
     */
     Algorithm(std::shared_ptr<QueueInterface>) noexcept;
     virtual void process_algorithm() = 0;
     ConcurrentQueue& get_process_queue();
     ConcurrentQueue& get_blocked_queue();
+    ConcurrentQueue& get_completed_process();
     const Process& get_current_process();
 protected:
-    //Process in the cpu
-    //List of process ready
-    //List of process ready
+    /*
+        -Process in the cpu
+        -Concurrentqueue of process ready
+        -Concurrentqueue of process ready
+    */
     Process current_process;
     ConcurrentQueue process_queue;
     ConcurrentQueue blocked_queue;
+    ConcurrentQueue completed_process;
 };
 
 //Non Expulsive Algorithms
@@ -80,17 +85,17 @@ public:
 
 //Expulsive Algorithms
 
-class PrioritySelectionExpulsive: public Algorithm
-{
-public:
-    PrioritySelectionExpulsive();
-    void process_algorithm() override;
-};
-
 class RoundRobin: public Algorithm
 {
 public:
     RoundRobin();
+    void process_algorithm() override;
+};
+
+class PrioritySelectionExpulsive: public Algorithm
+{
+public:
+    PrioritySelectionExpulsive();
     void process_algorithm() override;
 };
 

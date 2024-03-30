@@ -27,8 +27,15 @@ public:
     virtual bool empty() const noexcept = 0;
 
     virtual size_t size() const noexcept = 0;
+
+    virtual std::list<Process> toList() const = 0;
 };
 
+/*
+    The QueueAdapter will be use in the algorithms
+        First Come First Served
+        Round Robin
+*/
 class QueueAdapter : public std::queue<Process>,
                      public QueueInterface
 {
@@ -60,8 +67,26 @@ public:
     {
         return Base::size();
     }
+    std::list<Process> toList() const override
+    {
+        std::list<Process> listForm;
+        auto it = Base::c.begin();
+        while (it != Base::c.end())
+        {
+            listForm.push_back(*it);
+            ++it;
+        }
+        return listForm;
+    }
 };
 
+/*
+    The HeapAdapter will be use for the algorithms
+        Shortest Job First
+        Priority Non-Expulsive
+        Priority Expulsive
+        Shortest Remaining Time First
+*/
 template <typename Cmp>
 class HeapAdapter : public std::priority_queue<Process, std::vector<Process>, Cmp>,
                     public QueueInterface
@@ -94,7 +119,24 @@ public:
     {
         return Base::size();
     }
+    std::list<Process> toList() const override
+    {
+        std::list<Process> listForm;
+        auto it = Base::c.begin();
+        while (it != Base::c.end())
+        {
+            listForm.push_back(*it);
+            ++it;
+        }
+        return listForm;
+    }
 };
+
+/*
+    The Vector Adapter will be use for the Algorithm
+        Random Selection
+    In here the method pop will pop a random element in the vector
+*/
 class VectorAdapter : public std::vector<Process>,
                       public QueueInterface
 {
@@ -130,10 +172,26 @@ public:
     {
         return Base::size();
     }
+
+    std::list<Process> toList() const override
+    {
+        std::list<Process> listForm;
+        for (const auto& elem : *this)
+        {
+            listForm.push_back(elem);
+        }
+
+        return listForm;
+    }
 private:
     std::random_device rd;
 };
 
+/*
+
+    The ConcurrentQueue class is the main class that uses a queue adapter (QueueInterface)
+    to provide push, pop, get first element, get size, and check for empty operations concurrently and safely.
+*/
 class ConcurrentQueue
 {
 public:
@@ -182,6 +240,11 @@ public:
     {
       std::lock_guard<std::mutex> lck(const_cast<std::mutex &>(mtx));
       return queue->empty();
+    }
+    std::list<Process> toList() const
+    {
+        std::lock_guard<std::mutex> lck(const_cast<std::mutex &>(mtx));
+        return queue->toList();
     }
 
 private:

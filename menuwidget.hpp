@@ -11,7 +11,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QSpinBox>
-#include <globalvariables.hpp>
+#include <utils.hpp>
 
 class MenuWidget : public QWidget
 {
