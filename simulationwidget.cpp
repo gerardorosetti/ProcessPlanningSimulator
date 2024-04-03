@@ -49,7 +49,6 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
 
     start_point = std::chrono::high_resolution_clock::now();
     create_threads();
-
 }
 
 void SimulationWidget::create_threads()
@@ -225,8 +224,13 @@ void SimulationWidget::on_button_close_pressed()
 
 void SimulationWidget::on_button_stop_pressed()
 {
+    /*
+        its added the labels that shows the results of the simulation
+        the method "GlobalVariables::update() calculate some of these results
+    */
     if(GlobalVariables::going)
     {
+        //this part if for calculate the time of the simulation
         end_point = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> elapsed_time = end_point - start_point;
         GlobalVariables::total_time = elapsed_time.count();
@@ -279,6 +283,9 @@ void SimulationWidget::on_button_stop_pressed()
 
 void SimulationWidget::style_layouts()
 {
+    /*
+        in here we added the widget, labels and layouts that styles de simulation
+    */
     title.addWidget(title_l);
     title.addLayout(&processes_title_layout);
 
@@ -514,6 +521,7 @@ void SimulationWidget::style_layouts()
     connect(&button_stop, SIGNAL(clicked(bool)), this, SLOT(on_button_stop_pressed()));
 }
 
+//destructor for the simulationwidget
 SimulationWidget::~SimulationWidget()
 {
     if (!simulation_closed)

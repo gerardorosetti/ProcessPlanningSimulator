@@ -28,6 +28,10 @@ public:
 
     virtual size_t size() const noexcept = 0;
 
+    /*
+        The purpose of including the to List method is to be able to go through the queues easily,
+        this to be able to visualize the respective queues in the simulation
+    */
     virtual std::list<Process> toList() const = 0;
 };
 
@@ -190,7 +194,7 @@ private:
 /*
 
     The ConcurrentQueue class is the main class that uses a queue adapter (QueueInterface)
-    to provide push, pop, get first element, get size, and check for empty operations concurrently and safely.
+    to provide push, pop, get first element, get size, toList, and check for empty operations concurrently and safely.
 */
 class ConcurrentQueue
 {

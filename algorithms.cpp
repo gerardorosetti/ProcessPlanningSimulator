@@ -92,8 +92,9 @@ void FirstComeFirstServed::process_algorithm()
                 GlobalVariables::total_executed_time += current_process.get_time();
                 ++GlobalVariables::total_processes_compleated;
 
-                completed_process.push(current_process);
+                current_process.update_time(0);
                 current_process.update_status(STATUS::COMPLETED);
+                completed_process.push(current_process);
             }
         }
     }
@@ -137,8 +138,9 @@ void ShortestJobFirst::process_algorithm()
                 GlobalVariables::total_executed_time += current_process.get_time();
                 ++GlobalVariables::total_processes_compleated;
 
-                completed_process.push(current_process);
+                current_process.update_time(0);
                 current_process.update_status(STATUS::COMPLETED);
+                completed_process.push(current_process);
             }
         }
     }
@@ -183,8 +185,9 @@ void RandomSelection::process_algorithm()
                 GlobalVariables::total_executed_time += current_process.get_time();
                 ++GlobalVariables::total_processes_compleated;
 
-                completed_process.push(current_process);
+                current_process.update_time(0);
                 current_process.update_status(STATUS::COMPLETED);
+                completed_process.push(current_process);
             }
         }
     }
@@ -228,8 +231,9 @@ void PrioritySelectionNonExpulsive::process_algorithm()
                 GlobalVariables::total_executed_time += current_process.get_time();
                 ++GlobalVariables::total_processes_compleated;
 
-                completed_process.push(current_process);
+                current_process.update_time(0);
                 current_process.update_status(STATUS::COMPLETED);
+                completed_process.push(current_process);
             }
         }
     }
@@ -288,15 +292,16 @@ void RoundRobin::process_algorithm()
                     GlobalVariables::total_executed_time += current_process.get_time();
                     ++GlobalVariables::total_processes_compleated;
 
-                    completed_process.push(current_process);
+                    current_process.update_time(0);
                     current_process.update_status(STATUS::COMPLETED);
+                    completed_process.push(current_process);
                 }
             }
         }
     }
 }
 /*
-    Priority Selection Expulsive and Shortest Remaining Time First works the same their differences remains in the
+    Priority Selection Expulsive and Shortest Remaining Time First works the same their, differences remains in the
     Comparator for arrange their Heap
     This algorithms works
         Pop the process at the top of the queue, after that we constantly check is a new process in the queue
@@ -348,13 +353,14 @@ void PrioritySelectionExpulsive::process_algorithm()
                     time_counter += std::chrono::duration_cast<std::chrono::milliseconds>(tp2 - tp1).count();
                     if(time_counter >= process_time_duration)
                     {
-                        ++GlobalVariables::total_processes_compleated;
-
-                        completed_process.push(current_process);
-                        current_process.update_status(STATUS::COMPLETED);
 
                         GlobalVariables::total_executed_time += current_process.get_time();
 
+                        ++GlobalVariables::total_processes_compleated;
+
+                        current_process.update_time(0);
+                        current_process.update_status(STATUS::COMPLETED);
+                        completed_process.push(current_process);
                         break;
                     }
                     if (!process_queue.empty())
@@ -422,8 +428,10 @@ void ShortestRemainingTimeFirst::process_algorithm()
                         GlobalVariables::total_executed_time += current_process.get_time();
                         ++GlobalVariables::total_processes_compleated;
 
-                        completed_process.push(current_process);
+                        current_process.update_time(0);
                         current_process.update_status(STATUS::COMPLETED);
+                        completed_process.push(current_process);
+
                         break;
                     }
                     if (!process_queue.empty())

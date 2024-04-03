@@ -17,7 +17,7 @@ uint64_t GlobalVariables::total_processes_compleated = 0;
 uint64_t GlobalVariables::total_processes_created = 0;
 uint64_t GlobalVariables::total_processes_blocked = 0;
 double GlobalVariables::CPU_usage = 0;
-int GlobalVariables::lambda = 2000;
+int GlobalVariables::lambda = 1500;
 int GlobalVariables::tick = 10;
 
 void GlobalVariables::reset()
@@ -33,7 +33,7 @@ void GlobalVariables::reset()
     GlobalVariables::total_processes_compleated = 0;
     GlobalVariables::total_processes_created = 0;
     GlobalVariables::total_processes_blocked = 0;
-    GlobalVariables::lambda = 2000;
+    GlobalVariables::lambda = 1500;
     GlobalVariables::tick = 10;
 }
 

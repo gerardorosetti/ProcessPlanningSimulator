@@ -11,6 +11,7 @@ MenuWidget::MenuWidget(QWidget *parent)
     
     int width = 300, height = 50;
 
+    //style for the buttons
     QString style = "QPushButton {"
                     "background-color: #748CAB; "
                     "font-size: 20; "
@@ -80,7 +81,7 @@ MenuWidget::MenuWidget(QWidget *parent)
     settings_layout.addWidget(lambda);
 
     QSpinBox *input_lambda = new QSpinBox();
-    input_lambda->setRange(2000,10000);
+    input_lambda->setRange(1500,3000);
     settings_layout.addWidget(input_lambda);
     input_lambda->setFixedSize(200,30);
 
@@ -98,6 +99,7 @@ MenuWidget::MenuWidget(QWidget *parent)
     connect(input_lambda, QOverload<int>::of(&QSpinBox::valueChanged), this, &MenuWidget::update_lambda);
     connect(input_tick, QOverload<int>::of(&QSpinBox::valueChanged), this, &MenuWidget::update_tick);
 
+    //conecting the buttons
     connect(&FCFS, SIGNAL(clicked(bool)), this, SLOT(on_FCFS_pressed()));
     connect(&RS, SIGNAL(clicked(bool)), this, SLOT(on_RS_pressed()));
     connect(&PNE, SIGNAL(clicked(bool)), this, SLOT(on_PNE_pressed()));

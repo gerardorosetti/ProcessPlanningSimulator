@@ -17,7 +17,7 @@ Process Process::build_random_process(std::mt19937& gen) noexcept
 
     if(blocked_dist(gen) < 30)
     {
-        //se bloquea con un 30% de probabilidad
+        //the process gets a time until blocked whit 30% of chances if not, it doesnt get blocked it means until_blocked = 0
         random_until_blocked_time = time2_dist(gen);
     }
 

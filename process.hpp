@@ -50,7 +50,6 @@ private:
     int64_t io_burst_time;
     int64_t until_blocked_time;
     int64_t creation_time;
-    int64_t end_time;
     int64_t wait_time;
     size_t priority;
     STATUS status;
