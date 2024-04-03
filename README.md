@@ -13,6 +13,6 @@ Preview of the application
 
 Menu of the algorithms implemented. In here we define the arrival time of the processes and the tick of the clock
 
-![image](https://github.com/s0ymiranda/ProcessPlanningSimulator/assets/113555278/c76038fc-4fcc-4c8d-81eb-ac1a793f9759)
+![image](https://github.com/s0ymiranda/ProcessPlanningSimulator/assets/113555278/df5d0530-e9b3-4257-a3c4-6e54ca9dcc5e)
 
 
