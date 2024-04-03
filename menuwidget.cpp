@@ -76,7 +76,7 @@ MenuWidget::MenuWidget(QWidget *parent)
     PE.setStyleSheet(style);
     PE.setFixedSize(width, height);
 
-    QLabel *lambda = new QLabel("Tiempo de LLegadas: ");
+    QLabel *lambda = new QLabel("Arrival Rate: ");
     lambda->setStyleSheet("font-size: 15px; color: #F28F3B; font-weight: bold;");
     settings_layout.addWidget(lambda);
 
