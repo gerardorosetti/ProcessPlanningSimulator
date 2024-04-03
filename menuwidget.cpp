@@ -67,7 +67,7 @@ MenuWidget::MenuWidget(QWidget *parent)
     RR.setFixedSize(width, height);
 
     layout.addWidget(&SRTF, 0, Qt::AlignCenter);
-    SRTF.setText("Shortest Remaining");
+    SRTF.setText("Shortest Remaining Time First");
     SRTF.setStyleSheet(style);
     SRTF.setFixedSize(width, height);
 
