@@ -39,7 +39,7 @@ private:
     QVBoxLayout time_layout;
     QVBoxLayout cpu_layout;
     QVBoxLayout created_layout;
-    QVBoxLayout compleated_layout;
+    QVBoxLayout completed_layout;
     QVBoxLayout blocked_layout;
     QVBoxLayout waited_layout;
     QVBoxLayout execute_layout;
@@ -51,7 +51,7 @@ private:
     //Lists
     QListWidget processes_list;
     QListWidget current_list;
-    QListWidget compleated_list;
+    QListWidget completed_list;
     QListWidget blocked_list;
 
     //buttons
@@ -62,7 +62,7 @@ private:
     QLabel *total_time_t = new QLabel("Time(ms): ");
     QLabel *CPU_usage_t = new QLabel("CPU usage(%): ");
     QLabel *total_process_created_t = new QLabel("Process Created: ");
-    QLabel *total_process_compleated_t = new QLabel("Process Compleated: ");
+    QLabel *total_process_completed_t = new QLabel("Process completed: ");
     QLabel *total_process_blocked_t = new QLabel("Process Blocked: ");
     QLabel *average_waited_time_t = new QLabel("Average Waited Time: ");
     QLabel *average_executed_time_t = new QLabel("Average Executed Time: ");
@@ -72,7 +72,7 @@ private:
     QLabel *total_time = new QLabel("Time: ");
     QLabel *CPU_usage = new QLabel("CPU usage");
     QLabel *total_process_created = new QLabel("Process Created: ");
-    QLabel *total_process_compleated = new QLabel("Process Compleated: ");
+    QLabel *total_process_completed = new QLabel("Process completed: ");
     QLabel *total_process_blocked = new QLabel("Process Blocked: ");
     QLabel *average_waited_time = new QLabel("Average Waited Time: ");
     QLabel *average_executed_time = new QLabel("Average Executed Time: ");

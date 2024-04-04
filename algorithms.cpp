@@ -90,7 +90,7 @@ void FirstComeFirstServed::process_algorithm()
 
 
                 GlobalVariables::total_executed_time += current_process.get_time();
-                ++GlobalVariables::total_processes_compleated;
+                ++GlobalVariables::total_processes_completed;
 
                 current_process.update_time(0);
                 current_process.update_status(STATUS::COMPLETED);
@@ -136,7 +136,7 @@ void ShortestJobFirst::process_algorithm()
                 sleep_for(current_process.get_time());
 
                 GlobalVariables::total_executed_time += current_process.get_time();
-                ++GlobalVariables::total_processes_compleated;
+                ++GlobalVariables::total_processes_completed;
 
                 current_process.update_time(0);
                 current_process.update_status(STATUS::COMPLETED);
@@ -183,7 +183,7 @@ void RandomSelection::process_algorithm()
                 sleep_for(current_process.get_time());
 
                 GlobalVariables::total_executed_time += current_process.get_time();
-                ++GlobalVariables::total_processes_compleated;
+                ++GlobalVariables::total_processes_completed;
 
                 current_process.update_time(0);
                 current_process.update_status(STATUS::COMPLETED);
@@ -229,7 +229,7 @@ void PrioritySelectionNonExpulsive::process_algorithm()
                 sleep_for(current_process.get_time());
 
                 GlobalVariables::total_executed_time += current_process.get_time();
-                ++GlobalVariables::total_processes_compleated;
+                ++GlobalVariables::total_processes_completed;
 
                 current_process.update_time(0);
                 current_process.update_status(STATUS::COMPLETED);
@@ -290,7 +290,7 @@ void RoundRobin::process_algorithm()
                     sleep_for(current_process.get_time());
 
                     GlobalVariables::total_executed_time += current_process.get_time();
-                    ++GlobalVariables::total_processes_compleated;
+                    ++GlobalVariables::total_processes_completed;
 
                     current_process.update_time(0);
                     current_process.update_status(STATUS::COMPLETED);
@@ -356,7 +356,7 @@ void PrioritySelectionExpulsive::process_algorithm()
 
                         GlobalVariables::total_executed_time += current_process.get_time();
 
-                        ++GlobalVariables::total_processes_compleated;
+                        ++GlobalVariables::total_processes_completed;
 
                         current_process.update_time(0);
                         current_process.update_status(STATUS::COMPLETED);
@@ -426,7 +426,7 @@ void ShortestRemainingTimeFirst::process_algorithm()
                     {
 
                         GlobalVariables::total_executed_time += current_process.get_time();
-                        ++GlobalVariables::total_processes_compleated;
+                        ++GlobalVariables::total_processes_completed;
 
                         current_process.update_time(0);
                         current_process.update_status(STATUS::COMPLETED);

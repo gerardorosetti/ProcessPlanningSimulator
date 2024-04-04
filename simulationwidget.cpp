@@ -45,6 +45,7 @@ SimulationWidget::SimulationWidget(AlgorithmType type, QWidget *parent)
             break;
     }
     title_l->setStyleSheet("font-size: 30px; font-family: Times New Roman; color: #0D1321; font-weight: bold;");
+
     style_layouts();
 
     start_point = std::chrono::high_resolution_clock::now();
@@ -160,13 +161,13 @@ void SimulationWidget::create_threads()
             if(!(tempList.size() == completed_queue.size()))
             {
                 tempList = completed_queue.toList();
-                compleated_list.clear();
+                completed_list.clear();
 
                 for (const Process& process : tempList) {
                     std::stringstream ss;
                     ss << "Process ID: " << process.get_id() << " Time: " << process.get_time() <<" Priority: " << process.get_priority();
                     QString QStr = QString::fromStdString(ss.str());
-                    compleated_list.addItem(QStr);
+                    completed_list.addItem(QStr);
                 }
             }
         }
@@ -247,8 +248,8 @@ void SimulationWidget::on_button_stop_pressed()
     created_layout.addWidget(total_process_created_t);
     created_layout.addWidget(total_process_created);
 
-    compleated_layout.addWidget(total_process_compleated_t);
-    compleated_layout.addWidget(total_process_compleated);
+    completed_layout.addWidget(total_process_completed_t);
+    completed_layout.addWidget(total_process_completed);
 
     blocked_layout.addWidget(total_process_blocked_t);
     blocked_layout.addWidget(total_process_blocked);
@@ -265,7 +266,7 @@ void SimulationWidget::on_button_stop_pressed()
     report_layout.addLayout(&time_layout);
     report_layout.addLayout(&cpu_layout);
     report_layout.addLayout(&created_layout);
-    report_layout.addLayout(&compleated_layout);
+    report_layout.addLayout(&completed_layout);
     report_layout.addLayout(&blocked_layout);
     report_layout.addLayout(&waited_layout);
     report_layout.addLayout(&execute_layout);
@@ -274,7 +275,7 @@ void SimulationWidget::on_button_stop_pressed()
     total_time->setText(QString::number(GlobalVariables::total_time));
     CPU_usage->setText(QString::number(GlobalVariables::CPU_usage));
     total_process_created->setText(QString::number(GlobalVariables::total_processes_created));
-    total_process_compleated->setText(QString::number(GlobalVariables::total_processes_compleated));
+    total_process_completed->setText(QString::number(GlobalVariables::total_processes_completed));
     total_process_blocked->setText(QString::number(GlobalVariables::total_processes_blocked));
     average_waited_time->setText(QString::number(GlobalVariables::average_waited_time));
     average_executed_time->setText(QString::number(GlobalVariables::average_executed_time));
@@ -301,9 +302,9 @@ void SimulationWidget::style_layouts()
     cpu->setStyleSheet("font-size: 20px; color: rgba(85, 107, 47, 0.8); font-weight: bold;");
     processes_title_layout.addWidget(cpu);
 
-    QLabel *compleated = new QLabel("Compleated");
-    compleated->setStyleSheet("font-size: 20px; color: rgba(0, 100, 0, 0.8); font-weight: bold;");
-    processes_title_layout.addWidget(compleated);
+    QLabel *completed = new QLabel("Completed");
+    completed->setStyleSheet("font-size: 20px; color: rgba(0, 100, 0, 0.8); font-weight: bold;");
+    processes_title_layout.addWidget(completed);
 
     QLabel *blocked = new QLabel("Blocked");
     blocked->setStyleSheet("font-size: 20px; color: rgba(139, 0, 0, 0.8); font-weight: bold;");
@@ -399,8 +400,8 @@ void SimulationWidget::style_layouts()
         );
 
     processes_layout.addWidget(&current_list, 0, Qt::AlignTop);
-    compleated_list.setFixedSize(230, 300);
-    compleated_list.setStyleSheet(
+    completed_list.setFixedSize(230, 300);
+    completed_list.setStyleSheet(
         "QListWidget {"
         "background-color: #ABB4B4;"
         "border: 2px solid #006400;"
@@ -445,7 +446,7 @@ void SimulationWidget::style_layouts()
         "}"
         );
 
-    processes_layout.addWidget(&compleated_list, 0, Qt::AlignCenter);
+    processes_layout.addWidget(&completed_list, 0, Qt::AlignCenter);
 
     blocked_list.setFixedSize(230, 300);
     blocked_list.setStyleSheet(
@@ -499,7 +500,7 @@ void SimulationWidget::style_layouts()
     total_time_t->setStyleSheet("font-size: 11px; color: #333; font-weight: bold;");
     CPU_usage_t->setStyleSheet("font-size: 11px; color: #333; font-weight: bold;");
     total_process_created_t->setStyleSheet("font-size: 11px; color: #333; font-weight: bold;");
-    total_process_compleated_t->setStyleSheet("font-size: 11px; color: #333; font-weight: bold;");
+    total_process_completed_t->setStyleSheet("font-size: 11px; color: #333; font-weight: bold;");
     total_process_blocked_t->setStyleSheet("font-size: 11px; color: #333; font-weight: bold;");
     average_waited_time_t->setStyleSheet("font-size: 11px; color: #333; font-weight: bold;");
     average_executed_time_t->setStyleSheet("font-size: 11px; color: #333; font-weight: bold;");

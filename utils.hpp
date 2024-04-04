@@ -20,7 +20,7 @@ public:
     static uint64_t average_executed_time;
     static uint64_t total_blocked_time;
     static uint64_t average_blocked_time;
-    static uint64_t total_processes_compleated;
+    static uint64_t total_processes_completed;
     static uint64_t total_processes_created;
     static uint64_t total_processes_blocked;
     static double CPU_usage;
