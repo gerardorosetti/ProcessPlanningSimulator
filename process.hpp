@@ -37,20 +37,20 @@ public:
     void update_until_blocked_time() noexcept;
     void update_creation_time(int64_t t) noexcept;
     void update_time(int64_t t) noexcept;
-    static Process build_random_process(std::mt19937& generator) noexcept;
-    static long counter;
+    static Process build_random_process(std::mt19937& generator) noexcept; //will create a process whit random atributes
+    static long counter; //to define an unic Id for each process created
     friend std::ostream& operator<<(std::ostream& out, const Process& p);
 
 private:
 
     Process(int64_t _burst_time, int64_t _io_burst_time, size_t _priority, size_t _until_blocked_time) noexcept;
     long id;
-    int64_t time;
+    int64_t time; //will be compound as burst_time + io_burst_time
     int64_t burst_time;
-    int64_t io_burst_time;
+    int64_t io_burst_time; // time to process until go to blocked
     int64_t until_blocked_time;
     int64_t creation_time;
-    int64_t wait_time;
+    int64_t wait_time; // time until enter cpu
     size_t priority;
     STATUS status;
 };

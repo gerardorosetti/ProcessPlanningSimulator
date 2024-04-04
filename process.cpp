@@ -21,15 +21,17 @@ Process Process::build_random_process(std::mt19937& gen) noexcept
         random_until_blocked_time = time2_dist(gen);
     }
 
+    //burst time will be between 1000 and 2800
     int64_t random_burst_time = time1_dist(gen);
+    //io burst time will be between 100 and 800
     int64_t random_io_burst_time = time2_dist(gen);
 
+    //priority will be between 1 and 9
     size_t random_priority = priority_dist(gen);
 
     Process new_process(random_burst_time, random_io_burst_time, random_priority, random_until_blocked_time);
     return new_process;
 }
-
 
 Process::Process(int64_t _burst_time, int64_t _io_burst_time, size_t _priority, size_t _until_blocked_time) noexcept
     : id{++counter}, time{_burst_time + _io_burst_time}, until_blocked_time{_until_blocked_time}, priority{_priority}, status{STATUS::CREATED}, burst_time{_burst_time}, io_burst_time{_io_burst_time},
@@ -72,6 +74,7 @@ int64_t Process::get_until_blocked_time() const noexcept
 
 void Process::update_wait_time(int64_t t) noexcept
 {
+    //we receive the time when the process enter the "cpu" and update the wait time
     wait_time = creation_time - t;
 }
 
@@ -116,10 +119,9 @@ std::string enum_to_string(STATUS s)
     }
     return result;
 }
-
+//function to show trough terminal whit std::cout (this is not use currently in this Qt project)
 std::ostream& operator<<(std::ostream& out,const Process& p)
 {
-
-    out << "Process ID: "<< ((p.id < 10) ? "0" : "") << p.id << " Current Status: " <<  enum_to_string(p.status);
+    out << "Process ID: " << p.id << " Current Status: " <<  enum_to_string(p.status);
     return out;
 }

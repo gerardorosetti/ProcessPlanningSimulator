@@ -47,6 +47,12 @@ struct PRIORITY_CMP
 };
 
 /*
+    For all algorithms we checked if the process have a "until_blocked" if it does,
+    after sleeping the thread this "until_blocked" it will be send to the blocked queue and update until_blocked = 0
+    if it doesn't will be process normally as describe bellow
+*/
+
+/*
     Non-expulsive Algorithms works the same, depends of the kind of QueueInterface
         1- Pop the process at the top of the queue
         2- Check if the process its mean to be blocked,
