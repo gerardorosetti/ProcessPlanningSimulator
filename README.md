@@ -15,4 +15,4 @@ Menu of the algorithms implemented. In here we define the arrival time of the pr
 
 ![image](https://github.com/s0ymiranda/ProcessPlanningSimulator/assets/113555278/df5d0530-e9b3-4257-a3c4-6e54ca9dcc5e)
 
-
+Note: The Arrival rate will be limited to the range of 1500 to 3000 and the tick will be limited to the range of 10 to 200
